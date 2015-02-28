@@ -27,5 +27,12 @@ public:
 	static const std::string getCountry();
 };
 
+class Custom
+{
+public:
+	static cocos2d::Vec2 translatePositionToCenter(const cocos2d::Vec2& pos, const cocos2d::Size& containerSize);
+	static cocos2d::Vec2 getRealPosition(cocos2d::Node* node);
+};
+
 }; // namespace helpers {
 #endif // __HELPERS_H__

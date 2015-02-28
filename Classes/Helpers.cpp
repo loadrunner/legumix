@@ -121,5 +121,17 @@ const std::string Locale::getCountry()
 	return country;
 }
 
+cocos2d::Vec2 Custom::translatePositionToCenter(const cocos2d::Vec2& pos, const cocos2d::Size& containerSize)
+{
+	return cocos2d::Vec2(pos.x - containerSize.width/2, pos.y - containerSize.height/2);
+}
+
+cocos2d::Vec2 Custom::getRealPosition(cocos2d::Node* node)
+{
+	return cocos2d::Vec2(
+			node->getPositionX() - node->getContentSize().width * node->getAnchorPoint().x,
+			node->getPositionY() - node->getContentSize().height * node->getAnchorPoint().y);
+}
+
 }; // namespace helpers {
 
