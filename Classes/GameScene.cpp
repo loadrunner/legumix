@@ -92,7 +92,6 @@ bool GameScene::init()
 	
 	body = cocos2d::PhysicsBody::createBox(mBox->getContentSize(), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
 	body->setVelocity(cocos2d::Vec2::ZERO);
-	body->setVelocityLimit(150);
 	body->setRotationEnable(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBox->setPhysicsBody(body);
@@ -351,7 +350,11 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	
 	cocos2d::log("speed old %f/%f -> new %f/%f", v.x, v.y, (v*1.05f).x, (v*1.05f).y);
 	
-	mBox->getPhysicsBody()->setVelocity(v * 1.05f);
+	if (std::abs(v.x) < 150 && std::abs(v.y) < 150)
+	{
+		mBox->getPhysicsBody()->setVelocity(v * 1.05f);
+	}
+	
 	
 	if (contact.getShapeA()->getBody()->getTag() == 102 || contact.getShapeB()->getBody()->getTag() == 102)
 	{
