@@ -30,12 +30,15 @@ private:
 	cocos2d::Layer* mUILayer;
 	
 	cocos2d::Node* mBox;
+	cocos2d::Node* mGoodie;
 	
 	cocos2d::Vec2* mTempPoint;
 	cocos2d::Layer* mTempWallLayer;
 	cocos2d::PhysicsShape* mTempWallShape1;
 	cocos2d::PhysicsShape* mTempWallShape2;
 	
+	void startGame();
+	void moveGoodie();
 	void updateBoxDirection();
 	void updateTempPoint(const cocos2d::Vec2& point);
 	void removeTempPoint();

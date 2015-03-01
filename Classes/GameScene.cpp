@@ -96,6 +96,8 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBox->setPhysicsBody(body);
 	
+	mGoodie = nullptr;
+	
 	// Register Touch Event
 	auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
 	
@@ -171,6 +173,40 @@ void GameScene::updateSlow(float dt)
 		//		AppDelegate::pluginGameServices->unlockAchievement(1);
 		}
 	}
+}
+
+void GameScene::startGame()
+{
+	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(1, 1) * 20);
+	
+	moveGoodie();
+}
+
+void GameScene::moveGoodie()
+{
+	if (mGoodie != nullptr)
+	{
+		mGoodie->removeFromParentAndCleanup(true);
+	}
+	
+	cocos2d::Vec2 newPos = cocos2d::Vec2(rand() % (int) mGameLayer->getContentSize().width, rand() % (int) mGameLayer->getContentSize().height);
+	cocos2d::log("put goodie to new pos %f/%f", newPos.x, newPos.y);
+	
+	mGoodie = cocos2d::Node::create();
+	mGoodie->setContentSize(cocos2d::Size(3, 3));
+	mGoodie->setVisible(true);
+	mGoodie->setPosition(newPos);
+	mGameLayer->addChild(mGoodie);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeCircle::create(mGoodie->getContentSize().width/2);
+	shape->setSensor(true);
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	body->addShape(shape);
+	body->setDynamic(false);
+	body->setContactTestBitmask(0xFFFFFFFF);
+	body->setTag(103);
+	
+	mGoodie->setPhysicsBody(body);
 }
 
 void GameScene::updateBoxDirection()
@@ -288,7 +324,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 //	updateBoxDirection();
 	
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(1, 1) * 30);
+		startGame();
 	else
 		updateTempPoint(touch->getLocation());
 	
@@ -359,6 +395,11 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	if (contact.getShapeA()->getBody()->getTag() == 102 || contact.getShapeB()->getBody()->getTag() == 102)
 	{
 		removeTempPoint();
+	}
+	else if (contact.getShapeA()->getBody()->getTag() == 103 || contact.getShapeB()->getBody()->getTag() == 103)
+	{
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.mp3");
+		moveGoodie();
 	}
 	
 	return true;
