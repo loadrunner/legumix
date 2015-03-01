@@ -383,14 +383,18 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	*/
 	
 	cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
+	cocos2d::Vec2 newV = v;
 	
-	cocos2d::log("speed old %f/%f -> new %f/%f", v.x, v.y, (v*1.05f).x, (v*1.05f).y);
-	
-	if (std::abs(v.x) < 150 && std::abs(v.y) < 150)
+	if (std::abs(v.x) < 150 || std::abs(v.y) < 150)
 	{
-		mBox->getPhysicsBody()->setVelocity(v * 1.05f);
+		newV = v * 1.01f;
+		cocos2d::log("speed old %f/%f -> new %f/%f", v.x, v.y, newV.x, newV.y);
 	}
 	
+	newV = helpers::Custom::normalizeVelocity(newV);
+	
+	if (v != newV)
+		mBox->getPhysicsBody()->setVelocity(newV);
 	
 	if (contact.getShapeA()->getBody()->getTag() == 102 || contact.getShapeB()->getBody()->getTag() == 102)
 	{

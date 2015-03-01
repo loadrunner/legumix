@@ -133,5 +133,20 @@ cocos2d::Vec2 Custom::getRealPosition(cocos2d::Node* node)
 			node->getPositionY() - node->getContentSize().height * node->getAnchorPoint().y);
 }
 
+cocos2d::Vec2 Custom::normalizeVelocity(cocos2d::Vec2 v)
+{
+	int signX = v.x > 0 ? 1 : -1;
+	int signY = v.y > 0 ? 1 : -1;
+	
+	if (std::abs(v.x) != std::abs(v.y))
+	{
+		int max = std::max(std::abs(v.x), std::abs(v.y));
+		v.x = max * signX;
+		v.y = max * signY;
+	}
+	
+	return v;
+}
+
 }; // namespace helpers {
 
