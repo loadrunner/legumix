@@ -148,5 +148,13 @@ cocos2d::Vec2 Custom::normalizeVelocity(cocos2d::Vec2 v)
 	return v;
 }
 
+bool Custom::containsPoint(cocos2d::Node* node, const cocos2d::Vec2& point)
+{
+	cocos2d::Vec2 local = node->convertToNodeSpace(point);
+	cocos2d::Rect r = node->getBoundingBox();
+	r.origin = cocos2d::Vec2::ZERO;
+	return r.containsPoint(local);
+}
+
 }; // namespace helpers {
 

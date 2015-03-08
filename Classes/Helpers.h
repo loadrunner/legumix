@@ -33,6 +33,7 @@ public:
 	static cocos2d::Vec2 translatePositionToCenter(const cocos2d::Vec2& pos, const cocos2d::Size& containerSize);
 	static cocos2d::Vec2 getRealPosition(cocos2d::Node* node);
 	static cocos2d::Vec2 normalizeVelocity(cocos2d::Vec2 v);
+	static bool containsPoint(cocos2d::Node* node, const cocos2d::Vec2& point);
 };
 
 }; // namespace helpers {

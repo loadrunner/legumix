@@ -1,6 +1,6 @@
 #include "GameScene.h"
 
-GameScene::GameScene() : mTempPoint(nullptr), mTempWallShape1(nullptr), mTempWallShape2(nullptr)
+GameScene::GameScene()
 {
 	cocos2d::log("game scene constructed");
 }
@@ -8,9 +8,6 @@ GameScene::GameScene() : mTempPoint(nullptr), mTempWallShape1(nullptr), mTempWal
 GameScene::~GameScene()
 {
 	cocos2d::log("game scene destructed");
-	
-	if (mTempPoint != nullptr)
-		delete mTempPoint;
 }
 
 cocos2d::Scene* GameScene::createScene()
@@ -47,48 +44,61 @@ bool GameScene::init()
 	cocos2d::log("visible size %f, %f", mVisibleSize.width, mVisibleSize.height);
 	cocos2d::log("offset %f, %f", mOrigin.x, mOrigin.y);
 	
-	mGameLayer = cocos2d::LayerColor::create(cocos2d::Color4B(15, 50, 15, 200));
-	mGameLayer->ignoreAnchorPointForPosition(false);
-	mGameLayer->setAnchorPoint(cocos2d::Vec2::ANCHOR_MIDDLE);
-	mGameLayer->setContentSize(cocos2d::Size(90, 120));
-	mGameLayer->setPosition(cocos2d::Vec2(mScreenSize.width/2, 5 + mGameLayer->getContentSize().height/2));
-	this->addChild(mGameLayer, 100);
-	
-	mUILayer = cocos2d::Layer::create();
-	this->addChild(mUILayer, 200);
-	
 	initPools();
 	
 	getScene()->getPhysicsWorld()->setGravity(cocos2d::Vec2::ZERO);
 	getScene()->getPhysicsWorld()->setDebugDrawMask(cocos2d::PhysicsWorld::DEBUGDRAW_ALL);
 	
+	mGameArea = cocos2d::LayerColor::create(cocos2d::Color4B(15, 50, 15, 200));
+//	mGameArea = cocos2d::ClippingRectangleNode::create(cocos2d::Rect(0, 0, mScreenSize.width, 120));
+	this->addChild(mGameArea, 100);
+	
+	mScrollContainer = cocos2d::Layer::create();
+	mGameArea->addChild(mScrollContainer);
+	
+	mBg1 = cocos2d::Sprite::createWithSpriteFrameName("sheet");
+	mBg1->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mBg1->getContentSize().height/2));
+	mScrollContainer->addChild(mBg1);
+	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mGameLayer->getContentSize().width/2, -mGameLayer->getContentSize().height/2), cocos2d::Vec2(-mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mGameLayer->getContentSize().width/2, -mGameLayer->getContentSize().height/2), cocos2d::Vec2(mGameLayer->getContentSize().width/2, -mGameLayer->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2), cocos2d::Vec2(mGameLayer->getContentSize().width/2, -mGameLayer->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2), cocos2d::Vec2(mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2), material), true);
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), cocos2d::Vec2(-mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), material), true);
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), cocos2d::Vec2(mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), material), true);
 	
 	body->setDynamic(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
-	mGameLayer->setPhysicsBody(body);
+	mBg1->setPhysicsBody(body);
 	
-	mTempPoint = nullptr;
-	mTempWallShape1 = nullptr;
-	mTempWallShape2 = nullptr;
+	mBg2 = cocos2d::Sprite::createWithSpriteFrameName("sheet");
+	mBg2->setPosition(mBg1->getPosition() + cocos2d::Vec2(0, mBg1->getContentSize().height));
+	mScrollContainer->addChild(mBg2);
 	
-	mTempWallLayer = cocos2d::LayerColor::create(cocos2d::Color4B(95, 10, 15, 200));
-	mTempWallLayer->ignoreAnchorPointForPosition(false);
-	mTempWallLayer->setAnchorPoint(cocos2d::Vec2::ANCHOR_MIDDLE);
-	mTempWallLayer->setContentSize(mGameLayer->getContentSize());
-	mTempWallLayer->setPosition(cocos2d::Vec2(mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2));
-	mGameLayer->addChild(mTempWallLayer);
+	body = cocos2d::PhysicsBody::create();
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), cocos2d::Vec2(-mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), material), true);
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), cocos2d::Vec2(mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), material), true);
+	
+	body->setDynamic(false);
+	body->setContactTestBitmask(0xFFFFFFFF);
+	mBg2->setPhysicsBody(body);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(cocos2d::Size(2, 20), material);
+	shape->setTag(110);
+	
+	body = cocos2d::PhysicsBody::create();
+	body->addShape(shape);
+	body->setDynamic(false);
+	body->setContactTestBitmask(0xFFFFFFFF);
+	
+	mManualWall = cocos2d::Sprite::createWithSpriteFrameName("obs");
+	mManualWall->setPhysicsBody(body);
+	mManualWall->setVisible(false);
+	mScrollContainer->addChild(mManualWall);
 	
 	mBox = cocos2d::LayerColor::create(cocos2d::Color4B::BLUE);
 	mBox->setContentSize(cocos2d::Size(15, 15));
 	mBox->ignoreAnchorPointForPosition(false);
-	mBox->setPosition(cocos2d::Vec2(mGameLayer->getContentSize().width/2, mGameLayer->getContentSize().height/2));
-	mGameLayer->addChild(mBox);
+	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.25f));
+	mScrollContainer->addChild(mBox);
 	
 	body = cocos2d::PhysicsBody::createBox(mBox->getContentSize(), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
 	body->setVelocity(cocos2d::Vec2::ZERO);
@@ -97,6 +107,9 @@ bool GameScene::init()
 	mBox->setPhysicsBody(body);
 	
 	mGoodie = nullptr;
+	
+	mUILayer = cocos2d::Layer::create();
+	this->addChild(mUILayer, 200);
 	
 	// Register Touch Event
 	auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
@@ -122,7 +135,7 @@ bool GameScene::init()
 	listener5->onContactBegin = CC_CALLBACK_1(GameScene::onContactBegin, this);
 	dispatcher->addEventListenerWithSceneGraphPriority(listener5, this);
 	
-	this->schedule(schedule_selector(GameScene::update), 0.02f);
+	this->schedule(schedule_selector(GameScene::update));
 	this->schedule(schedule_selector(GameScene::updateSlow), 0.5f);
 	
 	if (AppDelegate::pluginAnalytics != nullptr)
@@ -156,6 +169,16 @@ void GameScene::update(float dt)
 //		
 //
 //	}
+	
+	mScrollContainer->setPositionY(-mBox->getPositionY() + mGameArea->getContentSize().height * 0.25f);
+	
+	if (mBg2->getPositionY() - mBg2->getContentSize().height/2 <= -mScrollContainer->getPositionY())
+	{
+		mBg1->setPositionY(mBg2->getPositionY() + mBg2->getContentSize().height);
+		cocos2d::Sprite* tmp = mBg1;
+		mBg1 = mBg2;
+		mBg2 = tmp;
+	}
 }
 
 void GameScene::updateSlow(float dt)
@@ -189,73 +212,46 @@ void GameScene::moveGoodie()
 		mGoodie->removeFromParentAndCleanup(true);
 	}
 	
-	cocos2d::Vec2 newPos = cocos2d::Vec2(rand() % (int) mGameLayer->getContentSize().width, rand() % (int) mGameLayer->getContentSize().height);
+	cocos2d::Vec2 newPos = cocos2d::Vec2(rand() % (int) mGameArea->getContentSize().width, rand() % (int) mGameArea->getContentSize().height);
 	cocos2d::log("put goodie to new pos %f/%f", newPos.x, newPos.y);
 	
 	mGoodie = cocos2d::Node::create();
 	mGoodie->setContentSize(cocos2d::Size(3, 3));
 	mGoodie->setVisible(true);
 	mGoodie->setPosition(newPos);
-	mGameLayer->addChild(mGoodie);
+	mScrollContainer->addChild(mGoodie);
 	
 	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeCircle::create(mGoodie->getContentSize().width/2);
 	shape->setSensor(true);
+	shape->setTag(200);
+	
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
 	body->addShape(shape);
 	body->setDynamic(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
-	body->setTag(103);
 	
 	mGoodie->setPhysicsBody(body);
 }
 
-void GameScene::updateBoxDirection()
+void GameScene::setManualWall(const cocos2d::Vec2& point)
 {
-	cocos2d::Vec2 dir = mBox->getPhysicsBody()->getVelocity();
-	
-	if (dir == cocos2d::Vec2::ZERO)
-		dir = cocos2d::Vec2(1, 1) * 30;
-	else dir.x *= -1;/*if (dir.x > 0)
-		if (dir.y > 0)
-			dir.y *= -1;
-		else
-			dir.x *= -1;
-	else if (dir.y > 0)
-		dir.x *= -1;
-	else
-		dir.y *= -1;
-	*/
+	cocos2d::Node* node;
+	cocos2d::Vec2 localPoint, a, b;
 	/*
-	switch (mBoxDirection)
-	{
-		case 1:
-			dir = cocos2d::Vec2(-1, -1);
-			break;
-		case 2:
-			dir = cocos2d::Vec2(1, -1);
-			break;
-		case 3:
-			dir = cocos2d::Vec2(1, 1);
-			break;
-		case 4:
-			dir = cocos2d::Vec2(-1, 1);
-			break;
-		default:
-			return;
-	}
+	if (helpers::Custom::containsPoint(mBg1, point))
+		node = mBg1;
+	else if (helpers::Custom::containsPoint(mBg2, point))
+		node = mBg2;
+	else
+		return;
 	*/
-	//mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2::ZERO);
-	mBox->getPhysicsBody()->setVelocity(dir * 1.05f);
-}
-
-void GameScene::updateTempPoint(const cocos2d::Vec2& point)
-{
-	if (mTempPoint != nullptr)
-	{
-		removeTempPoint();
-	}
+	localPoint = mScrollContainer->convertToNodeSpace(point);
 	
-	mTempPoint = new cocos2d::Vec2(point - helpers::Custom::getRealPosition(mGameLayer));
+	mManualWall->setPosition(localPoint);
+	mManualWall->setVisible(true);
+	
+	/*
+	mTempPoint = new cocos2d::Vec2(point - helpers::Custom::getRealPosition(mSc));
 	
 	cocos2d::Vec2 posTouch = helpers::Custom::translatePositionToCenter(*mTempPoint, mGameLayer->getContentSize());
 	cocos2d::Vec2 posBox = helpers::Custom::translatePositionToCenter(mBox->getPosition(), mGameLayer->getContentSize());
@@ -267,30 +263,6 @@ void GameScene::updateTempPoint(const cocos2d::Vec2& point)
 	a.y = posTouch.y > posBox.y ? mGameLayer->getContentSize().height/2 : -mGameLayer->getContentSize().height/2;
 	b.x = posTouch.x > posBox.x ? mGameLayer->getContentSize().width/2 : -mGameLayer->getContentSize().width/2;
 	b.y = posTouch.y;
-	
-	/*
-	if (dir.x > 0)
-		if (dir.y > 0)
-		{//top, right
-			a.y = mOrigin.y + mVisibleSize.height;
-			b.x = mOrigin.x + mVisibleSize.width;
-		}
-		else
-		{//bottom, right
-			a.y = mOrigin.y;
-			b.x = mOrigin.x + mVisibleSize.width;
-		}
-	else if (dir.y > 0)
-	{//top, left
-		a.y = mOrigin.y + mVisibleSize.height;
-		b.x = mOrigin.x;
-	}
-	else
-	{//bottom, left
-		a.y = mOrigin.y;
-		b.x = mOrigin.x;
-	}
-	*/
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
@@ -305,28 +277,17 @@ void GameScene::updateTempPoint(const cocos2d::Vec2& point)
 	mTempWallLayer->setPhysicsBody(body);
 	
 	cocos2d::log("added 2 shapes from %f/%f to %f/%f and %f/%f", mTempPoint->x, mTempPoint->y, a.x, a.y, b.x, b.y);
-}
-
-void GameScene::removeTempPoint()
-{
-	if (mTempPoint == nullptr)
-		return;
-	
-	delete mTempPoint;
-	mTempPoint = nullptr;
-	mTempWallLayer->setPhysicsBody(nullptr);
+	*/
 }
 
 bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You touched id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
-//	updateBoxDirection();
-	
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 		startGame();
 	else
-		updateTempPoint(touch->getLocation());
+		setManualWall(touch->getLocation());
 	
 	return true;
 }
@@ -373,7 +334,7 @@ void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::
 
 bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 {
-	cocos2d::log("contact %d with %d", contact.getShapeA()->getBody()->getTag(), contact.getShapeB()->getBody()->getTag());
+	cocos2d::log("contact %d with %d", contact.getShapeA()->getTag(), contact.getShapeB()->getTag());
 	/*
 	if (contact.getShapeA()->getBody()->getTag() == Dot::PHYSICS_TAG
 	 || contact.getShapeB()->getBody()->getTag() == Dot::PHYSICS_TAG)
@@ -396,11 +357,11 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	if (v != newV)
 		mBox->getPhysicsBody()->setVelocity(newV);
 	
-	if (contact.getShapeA()->getBody()->getTag() == 102 || contact.getShapeB()->getBody()->getTag() == 102)
+	if (contact.getShapeA()->getTag() == 110 || contact.getShapeB()->getTag() == 110)
 	{
-		removeTempPoint();
+		mManualWall->setVisible(false);
 	}
-	else if (contact.getShapeA()->getBody()->getTag() == 103 || contact.getShapeB()->getBody()->getTag() == 103)
+	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
 	{
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.mp3");
 		moveGoodie();

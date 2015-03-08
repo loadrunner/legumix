@@ -26,22 +26,20 @@ private:
 	
 	bool mIsGameServicesAvailable;
 	
-	cocos2d::Layer* mGameLayer;
+	cocos2d::Node* mGameArea;
+	cocos2d::Layer* mScrollContainer;
+	cocos2d::Sprite* mBg1;
+	cocos2d::Sprite* mBg2;
 	cocos2d::Layer* mUILayer;
 	
 	cocos2d::Node* mBox;
 	cocos2d::Node* mGoodie;
 	
-	cocos2d::Vec2* mTempPoint;
-	cocos2d::Layer* mTempWallLayer;
-	cocos2d::PhysicsShape* mTempWallShape1;
-	cocos2d::PhysicsShape* mTempWallShape2;
+	cocos2d::Node* mManualWall;
 	
 	void startGame();
 	void moveGoodie();
-	void updateBoxDirection();
-	void updateTempPoint(const cocos2d::Vec2& point);
-	void removeTempPoint();
+	void setManualWall(const cocos2d::Vec2& point);
 	
 	bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
 	void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
