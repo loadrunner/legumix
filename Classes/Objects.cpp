@@ -99,3 +99,31 @@ Wall* Wall::create()
 	return wall;
 }
 
+void WallPool::init(int capacity, cocos2d::Node* parent)
+{
+	if (getAvailableItemCount() > 0)
+		clearPool();
+	
+	mParent = parent;
+	
+	initWithCapacity(capacity);
+}
+
+Wall* WallPool::onAllocatePoolItem()
+{
+	Wall* wall = Wall::create();
+	wall->setVisible(false);
+	wall->pause();
+	wall->setPosition(-10, -10);
+	mParent->addChild(wall);
+	return wall;
+}
+
+void WallPool::onRecycleItem(Wall* item)
+{
+	item->setScale(1);
+	item->setPosition(-10, -10);
+	item->setVisible(false);
+	item->pause();
+}
+

@@ -44,8 +44,6 @@ bool GameScene::init()
 	cocos2d::log("visible size %f, %f", mVisibleSize.width, mVisibleSize.height);
 	cocos2d::log("offset %f, %f", mOrigin.x, mOrigin.y);
 	
-	initPools();
-	
 	getScene()->getPhysicsWorld()->setGravity(cocos2d::Vec2::ZERO);
 	getScene()->getPhysicsWorld()->setDebugDrawMask(cocos2d::PhysicsWorld::DEBUGDRAW_ALL);
 	
@@ -81,10 +79,6 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg2->setPhysicsBody(body);
 	
-	mManualWall = Wall::create();
-	mManualWall->setVisible(false);
-	mScrollContainer->addChild(mManualWall);
-	
 	mBox = cocos2d::LayerColor::create(cocos2d::Color4B::BLUE);
 	mBox->setContentSize(cocos2d::Size(15, 15));
 	mBox->ignoreAnchorPointForPosition(false);
@@ -101,6 +95,13 @@ bool GameScene::init()
 	
 	mUILayer = cocos2d::Layer::create();
 	this->addChild(mUILayer, 200);
+	
+	mWallCounterView = cocos2d::Label::createWithTTF("", "fonts/default.ttf", 10);
+	mWallCounterView->setPosition(cocos2d::Vec2(mOrigin.x + 10, mOrigin.y + mVisibleSize.height - 10));
+	mWallCounterView->setAnchorPoint(cocos2d::Vec2(0, 1));
+	mUILayer->addChild(mWallCounterView);
+	
+	initPools();
 	
 	// Register Touch Event
 	auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
@@ -141,7 +142,9 @@ bool GameScene::init()
 
 void GameScene::initPools()
 {
-
+	mWallPool.init(5, mScrollContainer);
+	mWallCounter = 5;
+	mWallCounterView->setString("5");
 }
 
 void GameScene::setParent(Node* child)
@@ -174,6 +177,13 @@ void GameScene::update(float dt)
 
 void GameScene::updateSlow(float dt)
 {
+	if (mManualWalls.size() > 0)
+	{
+		Wall* wall = mManualWalls.front();
+		if (wall->getPositionY() < -mScrollContainer->getPositionY())
+			recycleWall(wall);
+	}
+	
 	if (AppDelegate::pluginGameServices->isSignedIn() != mIsGameServicesAvailable)
 	{
 		mIsGameServicesAvailable = AppDelegate::pluginGameServices->isSignedIn();
@@ -229,6 +239,9 @@ void GameScene::moveGoodie()
 
 void GameScene::setManualWall(const cocos2d::Vec2& point)
 {
+	if (mWallCounter <= 0)
+		return;
+	
 	cocos2d::Node* node;
 	cocos2d::Vec2 localPoint, a, b;
 	/*
@@ -241,8 +254,13 @@ void GameScene::setManualWall(const cocos2d::Vec2& point)
 	*/
 	localPoint = mScrollContainer->convertToNodeSpace(point);
 	
-	mManualWall->setPosition(localPoint);
-	mManualWall->setVisible(true);
+	Wall* wall = mWallPool.obtainPoolItem();
+	wall->setPosition(localPoint);
+	wall->setVisible(true);
+	mManualWalls.pushBack(wall);
+	
+	mWallCounter--;
+	mWallCounterView->setString(cocos2d::__String::createWithFormat("%d", mWallCounter)->_string);
 	
 	/*
 	mTempPoint = new cocos2d::Vec2(point - helpers::Custom::getRealPosition(mSc));
@@ -274,6 +292,15 @@ void GameScene::setManualWall(const cocos2d::Vec2& point)
 	*/
 }
 
+void GameScene::recycleWall(Wall* wall)
+{
+	mManualWalls.eraseObject(wall);
+	mWallPool.recyclePoolItem(wall);
+	
+	mWallCounter++;
+	mWallCounterView->setString(cocos2d::__String::createWithFormat("%d", mWallCounter)->_string);
+}
+
 cocos2d::Sprite* prastie = nullptr;
 
 bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
@@ -287,7 +314,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 		prastie->setAnchorPoint(cocos2d::Vec2(0.5f, 0));
 		mGameArea->addChild(prastie);
 	}
-	else
+	else if (mWallCounter > 0)
 		setManualWall(touch->getLocation());
 	
 	return true;
@@ -371,14 +398,18 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 //	if (v != newV)
 //		mBox->getPhysicsBody()->setVelocity(newV);
 	
-	if (contact.getShapeA()->getTag() == 110 || contact.getShapeB()->getTag() == 110)
+	cocos2d::Node* node = nullptr;
+	
+	if (node = helpers::Custom::getNodeByShapeTag(contact, 110))
 	{
-		mManualWall->setVisible(false);
-		
 		float boxY = mBox->getPositionY() + mBox->getContentSize().height * (1.0f - mBox->getAnchorPoint().y);
-		float wallY = mManualWall->getPositionY() - mManualWall->getContentSize().height * mManualWall->getAnchorPoint().y;
+		float wallY = node->getPositionY() - node->getContentSize().height * node->getAnchorPoint().y;
 		if (boxY < wallY)
+		{
+			recycleWall(dynamic_cast<Wall*>(node));
+			
 			return false;
+		}
 	}
 	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
 	{

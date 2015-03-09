@@ -126,4 +126,14 @@ public:
 	static Wall* create();
 };
 
+class WallPool : public GenericPool<Wall*>
+{
+public:
+	void init(int capacity, cocos2d::Node* parent);
+protected:
+	cocos2d::Node* mParent;
+	Wall* onAllocatePoolItem() override;
+	void onRecycleItem(Wall* item) override;
+};
+
 #endif // __OBJECTS_H__

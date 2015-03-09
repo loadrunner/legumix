@@ -35,11 +35,16 @@ private:
 	cocos2d::Node* mBox;
 	cocos2d::Node* mGoodie;
 	
-	Wall* mManualWall;
+	int mWallCounter;
+	cocos2d::Label* mWallCounterView;
+	
+	WallPool mWallPool;
+	cocos2d::Vector<Wall*> mManualWalls;
 	
 	void startGame(float angle);
 	void moveGoodie();
 	void setManualWall(const cocos2d::Vec2& point);
+	void recycleWall(Wall* wall);
 	
 	bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
 	void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);

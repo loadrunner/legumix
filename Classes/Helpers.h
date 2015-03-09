@@ -35,6 +35,8 @@ public:
 	static cocos2d::Vec2 normalizeVelocity(cocos2d::Vec2 v);
 	static bool containsPoint(cocos2d::Node* node, const cocos2d::Vec2& point);
 	static float getNormalizedAngle(const cocos2d::Vec2& v1, const cocos2d::Vec2& v2);
+	static cocos2d::Node* getNodeByShapeTag(const cocos2d::PhysicsContact& contact, int tag);
+	static cocos2d::Node* getNodeByBodyTag(const cocos2d::PhysicsContact& contact, int tag);
 };
 
 }; // namespace helpers {

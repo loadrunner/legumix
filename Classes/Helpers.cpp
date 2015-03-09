@@ -171,5 +171,36 @@ float Custom::getNormalizedAngle(const cocos2d::Vec2& v1, const cocos2d::Vec2& v
 	return sign * std::min(75.0f, std::max(15.0f, std::abs(angle)));
 }
 
+cocos2d::Node* Custom::getNodeByShapeTag(const cocos2d::PhysicsContact& contact, int tag)
+{
+	cocos2d::PhysicsShape* shape = nullptr;
+	
+	if (contact.getShapeA()->getTag() == tag)
+		shape = contact.getShapeA();
+	else if (contact.getShapeB()->getTag() == tag)
+		shape = contact.getShapeB();
+	
+	if (shape)
+		return shape->getBody()->getNode();
+	
+	return nullptr;
+}
+
+cocos2d::Node* Custom::getNodeByBodyTag(const cocos2d::PhysicsContact& contact, int tag)
+{
+	cocos2d::PhysicsBody* body = nullptr;
+	
+	if (contact.getShapeA()->getBody()->getTag() == tag)
+		body = contact.getShapeA()->getBody();
+	else if (contact.getShapeB()->getBody()->getTag() == tag)
+		body = contact.getShapeB()->getBody();
+	
+	if (body)
+		return body->getNode();
+	
+	return nullptr;
+}
+
+
 }; // namespace helpers {
 
