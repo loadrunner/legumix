@@ -156,5 +156,20 @@ bool Custom::containsPoint(cocos2d::Node* node, const cocos2d::Vec2& point)
 	return r.containsPoint(local);
 }
 
+float Custom::getNormalizedAngle(const cocos2d::Vec2& v1, const cocos2d::Vec2& v2)
+{
+	float dX = v2.x - v1.x;
+	float dY = v2.y - v1.y;
+	
+	float angle = -CC_RADIANS_TO_DEGREES(atan2f(dY, dX));
+	if (angle < -90)
+		angle += 360;
+	angle -= 90;
+	
+	float sign = angle > 0 ? 1 : -1;
+	
+	return sign * std::min(75.0f, std::max(15.0f, std::abs(angle)));
+}
+
 }; // namespace helpers {
 

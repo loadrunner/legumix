@@ -198,9 +198,12 @@ void GameScene::updateSlow(float dt)
 	}
 }
 
-void GameScene::startGame()
+void GameScene::startGame(float angle)
 {
-	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(1, 1) * 20);
+	angle = CC_DEGREES_TO_RADIANS(angle);
+	cocos2d::log("xxxxxxxxxxxxx %f %f", sin(angle), cos(angle));
+	
+	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(sin(angle), cos(angle)) * 70);
 	
 	moveGoodie();
 }
@@ -280,12 +283,19 @@ void GameScene::setManualWall(const cocos2d::Vec2& point)
 	*/
 }
 
+cocos2d::Sprite* prastie = nullptr;
+
 bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You touched id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
-		startGame();
+	{
+		prastie = cocos2d::Sprite::createWithSpriteFrameName("line");
+		prastie->setPosition(mBox->getPosition());
+		prastie->setAnchorPoint(cocos2d::Vec2(0.5f, 0));
+		mGameArea->addChild(prastie);
+	}
 	else
 		setManualWall(touch->getLocation());
 	
@@ -296,12 +306,25 @@ void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You moved id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
+	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	{
+		float angle = helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation());
+		cocos2d::log("normalized angle %f", angle);
+		prastie->setRotation(angle);
+	}
 }
 
 void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You ended move id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
+	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	{
+		startGame(helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation()));
+		
+		prastie->removeFromParentAndCleanup(true);
+		prastie = nullptr;
+	}
 }
 
 void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
@@ -346,16 +369,16 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
 	cocos2d::Vec2 newV = v;
 	
-	if (std::abs(v.x) < 150 || std::abs(v.y) < 150)
-	{
-		newV = v * 1.01f;
-		cocos2d::log("speed old %f/%f -> new %f/%f", v.x, v.y, newV.x, newV.y);
-	}
+//	if (std::abs(v.x) < 150 || std::abs(v.y) < 150)
+//	{
+//		newV = v * 1.01f;
+//		cocos2d::log("speed old %f/%f -> new %f/%f", v.x, v.y, newV.x, newV.y);
+//	}
 	
-	newV = helpers::Custom::normalizeVelocity(newV);
+//	newV = helpers::Custom::normalizeVelocity(newV);
 	
-	if (v != newV)
-		mBox->getPhysicsBody()->setVelocity(newV);
+//	if (v != newV)
+//		mBox->getPhysicsBody()->setVelocity(newV);
 	
 	if (contact.getShapeA()->getTag() == 110 || contact.getShapeB()->getTag() == 110)
 	{

@@ -37,7 +37,7 @@ private:
 	
 	cocos2d::Node* mManualWall;
 	
-	void startGame();
+	void startGame(float angle);
 	void moveGoodie();
 	void setManualWall(const cocos2d::Vec2& point);
 	
