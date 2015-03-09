@@ -81,16 +81,7 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg2->setPhysicsBody(body);
 	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(cocos2d::Size(2, 20), material);
-	shape->setTag(110);
-	
-	body = cocos2d::PhysicsBody::create();
-	body->addShape(shape);
-	body->setDynamic(false);
-	body->setContactTestBitmask(0xFFFFFFFF);
-	
-	mManualWall = cocos2d::Sprite::createWithSpriteFrameName("obs");
-	mManualWall->setPhysicsBody(body);
+	mManualWall = Wall::create();
 	mManualWall->setVisible(false);
 	mScrollContainer->addChild(mManualWall);
 	
@@ -383,6 +374,11 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	if (contact.getShapeA()->getTag() == 110 || contact.getShapeB()->getTag() == 110)
 	{
 		mManualWall->setVisible(false);
+		
+		float boxY = mBox->getPositionY() + mBox->getContentSize().height * (1.0f - mBox->getAnchorPoint().y);
+		float wallY = mManualWall->getPositionY() - mManualWall->getContentSize().height * mManualWall->getAnchorPoint().y;
+		if (boxY < wallY)
+			return false;
 	}
 	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
 	{

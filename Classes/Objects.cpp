@@ -77,3 +77,25 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 	item->setScale(1);
 	item->stopAllActions();
 }
+
+Wall* Wall::create()
+{
+	Wall* wall = new Wall();
+	wall->initWithSpriteFrameName("obs");
+	wall->autorelease();
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	body->setDynamic(false);
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(wall->getContentSize(), material);
+	shape->setTag(110);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	body->addShape(shape);
+	
+	wall->setPhysicsBody(body);
+	
+	return wall;
+}
+

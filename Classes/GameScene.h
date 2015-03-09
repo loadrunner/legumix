@@ -35,7 +35,7 @@ private:
 	cocos2d::Node* mBox;
 	cocos2d::Node* mGoodie;
 	
-	cocos2d::Node* mManualWall;
+	Wall* mManualWall;
 	
 	void startGame(float angle);
 	void moveGoodie();

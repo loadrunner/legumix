@@ -120,4 +120,10 @@ protected:
 	void onRecycleItem(cocos2d::Sprite* item) override;
 };
 
+class Wall : public cocos2d::Sprite
+{
+public:
+	static Wall* create();
+};
+
 #endif // __OBJECTS_H__
