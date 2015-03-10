@@ -136,4 +136,20 @@ protected:
 	void onRecycleItem(Wall* item) override;
 };
 
+class Obstacle : public cocos2d::Sprite
+{
+public:
+	static Obstacle* create();
+};
+
+class ObstaclePool : public GenericPool<Obstacle*>
+{
+public:
+	void init(int capacity, cocos2d::Node* parent);
+protected:
+	cocos2d::Node* mParent;
+	Obstacle* onAllocatePoolItem() override;
+	void onRecycleItem(Obstacle* item) override;
+};
+
 #endif // __OBJECTS_H__

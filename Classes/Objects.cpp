@@ -81,7 +81,7 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 Wall* Wall::create()
 {
 	Wall* wall = new Wall();
-	wall->initWithSpriteFrameName("obs");
+	wall->initWithSpriteFrameName("wall");
 	wall->autorelease();
 	
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
@@ -120,6 +120,55 @@ Wall* WallPool::onAllocatePoolItem()
 }
 
 void WallPool::onRecycleItem(Wall* item)
+{
+	item->setScale(1);
+	item->setPosition(-10, -10);
+	item->setVisible(false);
+	item->pause();
+}
+
+Obstacle* Obstacle::create()
+{
+	Obstacle* obstacle = new Obstacle();
+	obstacle->initWithSpriteFrameName("obs");
+	obstacle->autorelease();
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	body->setDynamic(false);
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(obstacle->getContentSize(), material);
+	shape->setTag(210);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	body->addShape(shape);
+	
+	obstacle->setPhysicsBody(body);
+	
+	return obstacle;
+}
+
+void ObstaclePool::init(int capacity, cocos2d::Node* parent)
+{
+	if (getAvailableItemCount() > 0)
+		clearPool();
+	
+	mParent = parent;
+	
+	initWithCapacity(capacity);
+}
+
+Obstacle* ObstaclePool::onAllocatePoolItem()
+{
+	Obstacle* obstacle = Obstacle::create();
+	obstacle->setVisible(false);
+	obstacle->pause();
+	obstacle->setPosition(-10, -10);
+	mParent->addChild(obstacle);
+	return obstacle;
+}
+
+void ObstaclePool::onRecycleItem(Obstacle* item)
 {
 	item->setScale(1);
 	item->setPosition(-10, -10);

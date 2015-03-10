@@ -145,6 +145,8 @@ void GameScene::initPools()
 	mWallPool.init(5, mScrollContainer);
 	mWallCounter = 5;
 	mWallCounterView->setString("5");
+	
+	mObstaclePool.init(10, mScrollContainer);
 }
 
 void GameScene::setParent(Node* child)
@@ -153,16 +155,23 @@ void GameScene::setParent(Node* child)
 	
 }
 
+float timeFromLastObstacle = 0;
+
 void GameScene::update(float dt)
 {
-//	timeFromLastMoney += dt;
+	if (mBox->getPhysicsBody()->getVelocity() != cocos2d::Vec2::ZERO)
+		timeFromLastObstacle += dt;
 	
-//	if (timeFromLastMoney >= 0.5f)
-//	{
-//		timeFromLastMoney = 0;
-//		
-//
-//	}
+	if (timeFromLastObstacle >= 1.5f)
+	{
+		cocos2d::log("add obs");
+		timeFromLastObstacle = 0;
+		
+		Obstacle* obs = mObstaclePool.obtainPoolItem();
+		obs->setPosition(cocos2d::Vec2((mScreenSize.width - mBg1->getContentSize().width) / 2 + rand() % (int) mBg1->getContentSize().width, -mScrollContainer->getPositionY() + mScreenSize.height));
+		obs->setVisible(true);
+		mObstacles.pushBack(obs);
+	}
 	
 	mScrollContainer->setPositionY(-mBox->getPositionY() + mGameArea->getContentSize().height * 0.25f);
 	
@@ -182,6 +191,17 @@ void GameScene::updateSlow(float dt)
 		Wall* wall = mManualWalls.front();
 		if (wall->getPositionY() < -mScrollContainer->getPositionY())
 			recycleWall(wall);
+	}
+	
+	if (mObstacles.size() > 0)
+	{
+		Obstacle* obs = mObstacles.front();
+		if (obs->getPositionY() < -mScrollContainer->getPositionY())
+		{
+			cocos2d::log("remove obs");
+			mObstacles.eraseObject(obs);
+			mObstaclePool.recyclePoolItem(obs);
+		}
 	}
 	
 	if (AppDelegate::pluginGameServices->isSignedIn() != mIsGameServicesAvailable)
@@ -410,6 +430,10 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 			
 			return false;
 		}
+	}
+	else if (node = helpers::Custom::getNodeByShapeTag(contact, 210))
+	{
+		cocos2d::Director::getInstance()->replaceScene(GameScene::createScene());
 	}
 	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
 	{

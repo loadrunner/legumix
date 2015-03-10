@@ -41,6 +41,9 @@ private:
 	WallPool mWallPool;
 	cocos2d::Vector<Wall*> mManualWalls;
 	
+	ObstaclePool mObstaclePool;
+	cocos2d::Vector<Obstacle*> mObstacles;
+	
 	void startGame(float angle);
 	void moveGoodie();
 	void setManualWall(const cocos2d::Vec2& point);
