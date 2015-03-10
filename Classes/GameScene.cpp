@@ -263,7 +263,7 @@ void GameScene::setManualWall(const cocos2d::Vec2& point)
 		return;
 	
 	cocos2d::Node* node;
-	cocos2d::Vec2 localPoint, a, b;
+	cocos2d::Vec2 a, b;
 	/*
 	if (helpers::Custom::containsPoint(mBg1, point))
 		node = mBg1;
@@ -272,10 +272,9 @@ void GameScene::setManualWall(const cocos2d::Vec2& point)
 	else
 		return;
 	*/
-	localPoint = mScrollContainer->convertToNodeSpace(point);
 	
 	Wall* wall = mWallPool.obtainPoolItem();
-	wall->setPosition(localPoint);
+	wall->setPosition(point);
 	wall->setVisible(true);
 	mManualWalls.pushBack(wall);
 	
@@ -335,7 +334,16 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 		mGameArea->addChild(prastie);
 	}
 	else if (mWallCounter > 0)
-		setManualWall(touch->getLocation());
+	{
+		cocos2d::Vec2 local = mScrollContainer->convertToNodeSpace(touch->getLocation());
+		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(0.3f), cocos2d::CallFunc::create(CC_CALLBACK_0(GameScene::setManualWall, this, local)), nullptr));
+		
+		//tmp
+		auto sprite = cocos2d::Sprite::createWithSpriteFrameName("wall");
+		sprite->setPosition(local);
+		mScrollContainer->addChild(sprite);
+		sprite->runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(0.4f), cocos2d::RemoveSelf::create(true), nullptr));
+	}
 	
 	return true;
 }
