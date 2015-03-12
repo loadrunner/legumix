@@ -80,9 +80,9 @@ bool GameScene::init()
 	mBg2->setPhysicsBody(body);
 	
 	mBox = cocos2d::LayerColor::create(cocos2d::Color4B::BLUE);
-	mBox->setContentSize(cocos2d::Size(15, 15));
+	mBox->setContentSize(cocos2d::Size(8, 8));
 	mBox->ignoreAnchorPointForPosition(false);
-	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.25f));
+	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
 	mScrollContainer->addChild(mBox);
 	
 	body = cocos2d::PhysicsBody::createBox(mBox->getContentSize(), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
@@ -162,7 +162,7 @@ void GameScene::update(float dt)
 	if (mBox->getPhysicsBody()->getVelocity() != cocos2d::Vec2::ZERO)
 		timeFromLastObstacle += dt;
 	
-	if (timeFromLastObstacle >= 1.5f)
+	if (timeFromLastObstacle >= 1.2f)
 	{
 		cocos2d::log("add obs");
 		timeFromLastObstacle = 0;
@@ -173,7 +173,7 @@ void GameScene::update(float dt)
 		mObstacles.pushBack(obs);
 	}
 	
-	mScrollContainer->setPositionY(-mBox->getPositionY() + mGameArea->getContentSize().height * 0.25f);
+	mScrollContainer->setPositionY(-mBox->getPositionY() + mGameArea->getContentSize().height * 0.15f);
 	
 	if (mBg2->getPositionY() - mBg2->getContentSize().height/2 <= -mScrollContainer->getPositionY())
 	{
