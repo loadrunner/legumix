@@ -101,6 +101,14 @@ bool GameScene::init()
 	mWallCounterView->setAnchorPoint(cocos2d::Vec2(0, 1));
 	mUILayer->addChild(mWallCounterView);
 	
+	mProgress = 0;
+	
+	mProgressView = cocos2d::Label::createWithTTF("0m", "fonts/default.ttf", 10);
+	mProgressView->setColor(cocos2d::Color3B::GREEN);
+	mProgressView->setPosition(cocos2d::Vec2(mOrigin.x + mVisibleSize.width - 10, mOrigin.y + mVisibleSize.height - 10));
+	mProgressView->setAnchorPoint(cocos2d::Vec2(1, 1));
+	mUILayer->addChild(mProgressView);
+	
 	initPools();
 	
 	// Register Touch Event
@@ -202,6 +210,12 @@ void GameScene::updateSlow(float dt)
 			mObstacles.eraseObject(obs);
 			mObstaclePool.recyclePoolItem(obs);
 		}
+	}
+	
+	if (mBox->getPhysicsBody()->getVelocity() != cocos2d::Vec2::ZERO)
+	{
+		mProgress += dt * 0.6f;
+		mProgressView->setString(cocos2d::__String::createWithFormat("%.1fm", mProgress)->_string);
 	}
 	
 	if (AppDelegate::pluginGameServices->isSignedIn() != mIsGameServicesAvailable)
