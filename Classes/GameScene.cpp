@@ -102,8 +102,13 @@ bool GameScene::init()
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), cocos2d::Vec2(-mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), cocos2d::Vec2(mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), material), true);
+	cocos2d::PhysicsShape* edge = cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), cocos2d::Vec2(-mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), material);
+	edge->setTag(PHYSICS_TAG_EDGE_LEFT);
+	body->addShape(edge, true);
+	
+	edge = cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), cocos2d::Vec2(mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), material);
+	edge->setTag(PHYSICS_TAG_EDGE_RIGHT);
+	body->addShape(edge, true);
 	
 	body->setDynamic(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
@@ -156,8 +161,13 @@ bool GameScene::init()
 	mBg2->addChild(decor);
 	
 	body = cocos2d::PhysicsBody::create();
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), cocos2d::Vec2(-mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), cocos2d::Vec2(mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), material), true);
+	edge = cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), cocos2d::Vec2(-mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), material);
+	edge->setTag(PHYSICS_TAG_EDGE_LEFT);
+	body->addShape(edge, true);
+	
+	edge = cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), cocos2d::Vec2(mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), material);
+	edge->setTag(PHYSICS_TAG_EDGE_RIGHT);
+	body->addShape(edge, true);
 	
 	body->setDynamic(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
@@ -167,9 +177,30 @@ bool GameScene::init()
 	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
 	mScrollContainer->addChild(mBox);
 	
-	body = cocos2d::PhysicsBody::createBox(cocos2d::Size(mBox->getContentSize().width * 0.5f, mBox->getContentSize().height), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
+	body = cocos2d::PhysicsBody::create();
 	body->setVelocity(cocos2d::Vec2::ZERO);
 	body->setRotationEnable(false);
+	
+	cocos2d::PhysicsShape* bodyy = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 13), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, -2));
+	bodyy->setTag(PHYSICS_TAG_BOX_BODY);
+	bodyy->setSensor(true);
+	body->addShape(bodyy);
+	
+	cocos2d::PhysicsShape* bot = cocos2d::PhysicsShapeBox::create(cocos2d::Size(3, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, 8));
+	bot->setTag(PHYSICS_TAG_BOX_HEAD);
+	bot->setSensor(true);
+	body->addShape(bot);
+	
+	cocos2d::PhysicsShape* leftWing = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(-6, -1));
+	leftWing->setTag(PHYSICS_TAG_BOX_WING);
+	leftWing->setSensor(true);
+	body->addShape(leftWing);
+	
+	cocos2d::PhysicsShape* rightWing = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(6, -1));
+	rightWing->setTag(PHYSICS_TAG_BOX_WING);
+	rightWing->setSensor(true);
+	body->addShape(rightWing);
+	
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBox->setPhysicsBody(body);
 	
@@ -523,20 +554,36 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 //	if (v != newV)
 //		mBox->getPhysicsBody()->setVelocity(newV);
 	
-	cocos2d::Node* node = nullptr;
-	
-	if (node = helpers::Custom::getNodeByShapeTag(contact, 110))
+	if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_LEFT))
 	{
-		float boxY = mBox->getPositionY() + mBox->getContentSize().height * (1.0f - mBox->getAnchorPoint().y);
-		float wallY = node->getPositionY() - node->getContentSize().height * node->getAnchorPoint().y;
-		if (boxY < wallY)
-		{
-			recycleWall(dynamic_cast<Wall*>(node));
-			
-			return false;
-		}
+		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x), v.y));
 	}
-	else if (node = helpers::Custom::getNodeByShapeTag(contact, 210))
+	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_RIGHT))
+	{
+		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x), v.y));
+	}
+	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Wall::PHYSICS_TAG))
+	{
+		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::min(v.y * 0.75f, std::max(v.y * 0.25f, -v.x * (0.5f + (rand() % 10) / 10.0f))), v.y));
+	}
+	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_HEAD, Wall::PHYSICS_TAG))
+	{
+		cocos2d::log("wall with bot");
+		
+		Wall* wall = dynamic_cast<Wall*>(helpers::Custom::getNodeByShapeTag(contact, Wall::PHYSICS_TAG));
+		
+		//tmp
+		auto sprite = cocos2d::Sprite::createWithSpriteFrameName("clouds");
+		sprite->setPosition(wall->getPosition());
+		mScrollContainer->addChild(sprite);
+		sprite->runAction(cocos2d::Sequence::create(cocos2d::FadeOut::create(0.8f), cocos2d::RemoveSelf::create(true), nullptr));
+		
+		GameScene::recycleWall(wall);
+	}
+	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Obstacle::PHYSICS_TAG))
 	{
 		cocos2d::Scene* scene = GameScene::createScene();
 		scene->retain();
@@ -546,13 +593,13 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Director::replaceScene, cocos2d::Director::getInstance(), scene)),
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Ref::release, scene)), nullptr));
 	}
-	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
+	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Obstacle::PHYSICS_TAG))
 	{
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.mp3");
 		moveGoodie();
 	}
 	
-	return true;
+	return false;
 }
 
 void GameScene::onComeToForeground()

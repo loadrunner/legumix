@@ -37,6 +37,7 @@ public:
 	static float getNormalizedAngle(const cocos2d::Vec2& v1, const cocos2d::Vec2& v2);
 	static cocos2d::Node* getNodeByShapeTag(const cocos2d::PhysicsContact& contact, int tag);
 	static cocos2d::Node* getNodeByBodyTag(const cocos2d::PhysicsContact& contact, int tag);
+	static bool isContactBetweenAB(const cocos2d::PhysicsContact& contact, int tagA, int tagB);
 };
 
 }; // namespace helpers {

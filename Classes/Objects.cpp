@@ -90,7 +90,7 @@ Wall* Wall::create()
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
 	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(wall->getContentSize(), material);
-	shape->setTag(110);
+	shape->setTag(PHYSICS_TAG);
 	shape->setContactTestBitmask(0xFFFFFFFF);
 	body->addShape(shape);
 	
@@ -139,7 +139,7 @@ Obstacle* Obstacle::create()
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
 	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(obstacle->getContentSize() * 0.7f, material);
-	shape->setTag(210);
+	shape->setTag(PHYSICS_TAG);
 	shape->setContactTestBitmask(0xFFFFFFFF);
 	body->addShape(shape);
 	

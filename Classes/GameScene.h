@@ -15,7 +15,14 @@ public:
 	
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
 	virtual bool init() override;
-
+	
+	const int PHYSICS_TAG_BOX_BODY = 300;
+	const int PHYSICS_TAG_BOX_HEAD = 301;
+	const int PHYSICS_TAG_BOX_WING = 302;
+	const int PHYSICS_TAG_GOODIE = 1;
+	const int PHYSICS_TAG_EDGE_LEFT = 101;
+	const int PHYSICS_TAG_EDGE_RIGHT = 102;
+	
 private:
 	GameScene();
 	~GameScene();

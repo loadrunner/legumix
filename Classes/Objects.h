@@ -124,6 +124,7 @@ class Wall : public cocos2d::Sprite
 {
 public:
 	static Wall* create();
+	static const int PHYSICS_TAG = 110;
 };
 
 class WallPool : public GenericPool<Wall*>
@@ -140,6 +141,7 @@ class Obstacle : public cocos2d::Sprite
 {
 public:
 	static Obstacle* create();
+	static const int PHYSICS_TAG = 210;
 };
 
 class ObstaclePool : public GenericPool<Obstacle*>
