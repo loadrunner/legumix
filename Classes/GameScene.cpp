@@ -538,7 +538,13 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	}
 	else if (node = helpers::Custom::getNodeByShapeTag(contact, 210))
 	{
-		cocos2d::Director::getInstance()->replaceScene(GameScene::createScene());
+		cocos2d::Scene* scene = GameScene::createScene();
+		scene->retain();
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2::ZERO);
+		mBox->setColor(cocos2d::Color3B::GRAY);
+		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(1.5f),
+				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Director::replaceScene, cocos2d::Director::getInstance(), scene)),
+				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Ref::release, scene)), nullptr));
 	}
 	else if (contact.getShapeA()->getTag() == 200 || contact.getShapeB()->getTag() == 200)
 	{
