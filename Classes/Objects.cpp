@@ -81,7 +81,7 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 Wall* Wall::create()
 {
 	Wall* wall = new Wall();
-	wall->initWithSpriteFrameName("wall");
+	wall->initWithSpriteFrameName("clouds");
 	wall->autorelease();
 	
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
@@ -138,7 +138,7 @@ Obstacle* Obstacle::create()
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(obstacle->getContentSize(), material);
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(obstacle->getContentSize() * 0.7f, material);
 	shape->setTag(210);
 	shape->setContactTestBitmask(0xFFFFFFFF);
 	body->addShape(shape);

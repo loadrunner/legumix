@@ -28,8 +28,8 @@ private:
 	
 	cocos2d::Node* mGameArea;
 	cocos2d::Layer* mScrollContainer;
-	cocos2d::Sprite* mBg1;
-	cocos2d::Sprite* mBg2;
+	cocos2d::Node* mBg1;
+	cocos2d::Node* mBg2;
 	cocos2d::Layer* mUILayer;
 	
 	cocos2d::Node* mBox;

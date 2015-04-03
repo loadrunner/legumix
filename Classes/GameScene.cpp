@@ -27,7 +27,7 @@ bool GameScene::init()
 {
 	//////////////////////////////
 	// 1. super init first
-	if (!cocos2d::LayerColor::initWithColor(cocos2d::Color4B(44, 44, 44, 255)))
+	if (!cocos2d::LayerColor::initWithColor(cocos2d::Color4B(0, 0, 0, 255)))
 	{
 		return false;
 	}
@@ -45,18 +45,60 @@ bool GameScene::init()
 	cocos2d::log("offset %f, %f", mOrigin.x, mOrigin.y);
 	
 	getScene()->getPhysicsWorld()->setGravity(cocos2d::Vec2::ZERO);
-	getScene()->getPhysicsWorld()->setDebugDrawMask(cocos2d::PhysicsWorld::DEBUGDRAW_ALL);
+//	getScene()->getPhysicsWorld()->setDebugDrawMask(cocos2d::PhysicsWorld::DEBUGDRAW_ALL);
 	
-	mGameArea = cocos2d::LayerColor::create(cocos2d::Color4B(15, 50, 15, 200));
+	mGameArea = cocos2d::LayerColor::create(cocos2d::Color4B(255, 255, 255, 255));
 //	mGameArea = cocos2d::ClippingRectangleNode::create(cocos2d::Rect(0, 0, mScreenSize.width, 120));
 	this->addChild(mGameArea, 100);
 	
 	mScrollContainer = cocos2d::Layer::create();
 	mGameArea->addChild(mScrollContainer);
 	
-	mBg1 = cocos2d::Sprite::createWithSpriteFrameName("sheet");
+	mBg1 = cocos2d::LayerColor::create(cocos2d::Color4B(89, 148, 54, 255));
+	mBg1->ignoreAnchorPointForPosition(false);
 	mBg1->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mBg1->getContentSize().height/2));
 	mScrollContainer->addChild(mBg1);
+	
+	cocos2d::Sprite* decor = cocos2d::Sprite::createWithSpriteFrameName("line");
+	decor->setAnchorPoint(cocos2d::Vec2(0.5f, 1));
+	decor->setPosition(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(0, mBg1->getContentSize().height * 0.25f));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(0, mBg1->getContentSize().height * 0.75f));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(mBg1->getContentSize().width, mBg1->getContentSize().height * 0.25f));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(mBg1->getContentSize().width, mBg1->getContentSize().height * 0.75f));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg1->getContentSize().width, rand() % (int) mBg1->getContentSize().height));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg1->getContentSize().width, rand() % (int) mBg1->getContentSize().height));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg1->getContentSize().width, rand() % (int) mBg1->getContentSize().height));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("random-house");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg1->getContentSize().width, rand() % (int) mBg1->getContentSize().height));
+	mBg1->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("random-house-2");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg1->getContentSize().width, rand() % (int) mBg1->getContentSize().height));
+	mBg1->addChild(decor);
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
@@ -67,25 +109,65 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg1->setPhysicsBody(body);
 	
-	mBg2 = cocos2d::Sprite::createWithSpriteFrameName("sheet");
+	mBg2 = cocos2d::LayerColor::create(cocos2d::Color4B(89, 148, 54, 255));
+	mBg2->ignoreAnchorPointForPosition(false);
 	mBg2->setPosition(mBg1->getPosition() + cocos2d::Vec2(0, mBg1->getContentSize().height));
 	mScrollContainer->addChild(mBg2);
 	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("line");
+	decor->setAnchorPoint(cocos2d::Vec2(0.5f, 1));
+	decor->setPosition(cocos2d::Vec2(mBg2->getContentSize().width/2, mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(0, mBg2->getContentSize().height * 0.25f));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(0, mBg2->getContentSize().height * 0.75f));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(mBg2->getContentSize().width, mBg2->getContentSize().height * 0.25f));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("side-clouds");
+	decor->setPosition(cocos2d::Vec2(mBg2->getContentSize().width, mBg2->getContentSize().height * 0.75f));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg2->getContentSize().width, rand() % (int) mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg2->getContentSize().width, rand() % (int) mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("tree");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg2->getContentSize().width, rand() % (int) mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("random-house");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg2->getContentSize().width, rand() % (int) mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
+	decor = cocos2d::Sprite::createWithSpriteFrameName("random-house-2");
+	decor->setPosition(cocos2d::Vec2(rand() % (int) mBg2->getContentSize().width, rand() % (int) mBg2->getContentSize().height));
+	mBg2->addChild(decor);
+	
 	body = cocos2d::PhysicsBody::create();
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), cocos2d::Vec2(-mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), material), true);
-	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg1->getContentSize().width/2, mBg1->getContentSize().height/2), cocos2d::Vec2(mBg1->getContentSize().width/2, -mBg1->getContentSize().height/2), material), true);
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(-mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), cocos2d::Vec2(-mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), material), true);
+	body->addShape(cocos2d::PhysicsShapeEdgeSegment::create(cocos2d::Vec2(mBg2->getContentSize().width/2, mBg2->getContentSize().height/2), cocos2d::Vec2(mBg2->getContentSize().width/2, -mBg2->getContentSize().height/2), material), true);
 	
 	body->setDynamic(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg2->setPhysicsBody(body);
 	
-	mBox = cocos2d::LayerColor::create(cocos2d::Color4B::BLUE);
-	mBox->setContentSize(cocos2d::Size(8, 8));
-	mBox->ignoreAnchorPointForPosition(false);
+	mBox = cocos2d::Sprite::createWithSpriteFrameName("plane");
 	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
 	mScrollContainer->addChild(mBox);
 	
-	body = cocos2d::PhysicsBody::createBox(mBox->getContentSize(), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
+	body = cocos2d::PhysicsBody::createBox(cocos2d::Size(mBox->getContentSize().width * 0.5f, mBox->getContentSize().height), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2::ZERO);
 	body->setVelocity(cocos2d::Vec2::ZERO);
 	body->setRotationEnable(false);
 	body->setContactTestBitmask(0xFFFFFFFF);
@@ -186,7 +268,7 @@ void GameScene::update(float dt)
 	if (mBg2->getPositionY() - mBg2->getContentSize().height/2 <= -mScrollContainer->getPositionY())
 	{
 		mBg1->setPositionY(mBg2->getPositionY() + mBg2->getContentSize().height);
-		cocos2d::Sprite* tmp = mBg1;
+		cocos2d::Node* tmp = mBg1;
 		mBg1 = mBg2;
 		mBg2 = tmp;
 	}
@@ -344,7 +426,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	{
 		prastie = cocos2d::Sprite::createWithSpriteFrameName("line");
 		prastie->setPosition(mBox->getPosition());
-		prastie->setAnchorPoint(cocos2d::Vec2(0.5f, 0));
+		prastie->setAnchorPoint(cocos2d::Vec2(1, 0.5f));
 		mGameArea->addChild(prastie);
 	}
 	else if (mWallCounter > 0)
@@ -353,10 +435,11 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(0.3f), cocos2d::CallFunc::create(CC_CALLBACK_0(GameScene::setManualWall, this, local)), nullptr));
 		
 		//tmp
-		auto sprite = cocos2d::Sprite::createWithSpriteFrameName("wall");
+		auto sprite = cocos2d::Sprite::createWithSpriteFrameName("clouds");
 		sprite->setPosition(local);
+		sprite->setOpacity(0);
 		mScrollContainer->addChild(sprite);
-		sprite->runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(0.4f), cocos2d::RemoveSelf::create(true), nullptr));
+		sprite->runAction(cocos2d::Sequence::create(cocos2d::FadeIn::create(0.4f), cocos2d::RemoveSelf::create(true), nullptr));
 	}
 	
 	return true;
@@ -370,7 +453,7 @@ void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 	{
 		float angle = helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation());
 		cocos2d::log("normalized angle %f", angle);
-		prastie->setRotation(angle);
+		prastie->setRotation(angle + 90);
 	}
 }
 
