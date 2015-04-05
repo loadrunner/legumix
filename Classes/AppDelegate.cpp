@@ -1,6 +1,6 @@
 #include "AppDelegate.h"
 
-const int AppDelegate::BASE_WIDTH = 120;
+const int AppDelegate::BASE_WIDTH = 90;
 const int AppDelegate::BASE_HEIGHT = 160;
 const float AppDelegate::SCALE_L_RES = 3.0;   //scale 0.250000
 const float AppDelegate::SCALE_M_RES = 4.0;   //scale 0.333333
@@ -42,11 +42,11 @@ bool AppDelegate::applicationDidFinishLaunching()
 	auto glview = director->getOpenGLView();
 	if (!glview)
 	{
-		glview = cocos2d::GLViewImpl::createWithRect(std::string("boxxer"), cocos2d::Rect(0, 0, 480, 640), 1.0f);
+		glview = cocos2d::GLViewImpl::createWithRect(std::string("boxxer"), cocos2d::Rect(0, 0, 360, 640), 1.0f);
 		director->setOpenGLView(glview);
 	}
 	
-	glview->setDesignResolutionSize(AppDelegate::BASE_WIDTH, AppDelegate::BASE_HEIGHT, ResolutionPolicy::NO_BORDER);
+	glview->setDesignResolutionSize(AppDelegate::BASE_WIDTH, AppDelegate::BASE_HEIGHT, ResolutionPolicy::NO_BORDER, ResolutionGravity::START);
 	cocos2d::Size frameSize = glview->getFrameSize();
 	
 	cocos2d::log("frame size %f, %f", frameSize.width, frameSize.height);
