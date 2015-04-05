@@ -54,7 +54,7 @@ private:
 	float mProgress;
 	cocos2d::Label* mProgressView;
 	
-	void startGame(float angle);
+	void startGame();
 	void moveGoodie();
 	void setManualWall(const cocos2d::Vec2& point);
 	void recycleWall(Wall* wall);

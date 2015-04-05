@@ -49,6 +49,9 @@ bool GameScene::init()
 	
 	mGameArea = cocos2d::LayerColor::create(cocos2d::Color4B(255, 255, 255, 255));
 //	mGameArea = cocos2d::ClippingRectangleNode::create(cocos2d::Rect(0, 0, mScreenSize.width, 120));
+	mGameArea->ignoreAnchorPointForPosition(false);
+	mGameArea->setPosition(cocos2d::Vec2::ZERO);
+	mGameArea->setAnchorPoint(cocos2d::Vec2::ZERO);
 	this->addChild(mGameArea, 100);
 	
 	mScrollContainer = cocos2d::Layer::create();
@@ -175,7 +178,7 @@ bool GameScene::init()
 	
 	mBox = cocos2d::Sprite::createWithSpriteFrameName("plane");
 	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
-	mScrollContainer->addChild(mBox);
+	mGameArea->addChild(mBox);
 	
 	body = cocos2d::PhysicsBody::create();
 	body->setVelocity(cocos2d::Vec2::ZERO);
@@ -280,8 +283,10 @@ float timeFromLastObstacle = 0;
 
 void GameScene::update(float dt)
 {
-	if (mBox->getPhysicsBody()->getVelocity() != cocos2d::Vec2::ZERO)
-		timeFromLastObstacle += dt;
+	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+		return;
+	
+	timeFromLastObstacle += dt;
 	
 	if (timeFromLastObstacle >= 1.2f)
 	{
@@ -294,7 +299,7 @@ void GameScene::update(float dt)
 		mObstacles.pushBack(obs);
 	}
 	
-	mScrollContainer->setPositionY(-mBox->getPositionY() + mGameArea->getContentSize().height * 0.15f);
+	mScrollContainer->setPositionY(mScrollContainer->getPositionY() - dt * 30);
 	
 	if (mBg2->getPositionY() - mBg2->getContentSize().height/2 <= -mScrollContainer->getPositionY())
 	{
@@ -346,12 +351,14 @@ void GameScene::updateSlow(float dt)
 	}
 }
 
-void GameScene::startGame(float angle)
+void GameScene::startGame()
 {
-	angle = CC_DEGREES_TO_RADIANS(angle);
-	cocos2d::log("xxxxxxxxxxxxx %f %f", sin(angle), cos(angle));
+//	angle = CC_DEGREES_TO_RADIANS(angle);
+//	cocos2d::log("xxxxxxxxxxxxx %f %f", sin(angle), cos(angle));
 	
-	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(sin(angle), cos(angle)) * 70);
+//	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(sin(angle), cos(angle)) * 70);
+	
+	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(30, 0));
 	
 	moveGoodie();
 }
@@ -447,7 +454,7 @@ void GameScene::recycleWall(Wall* wall)
 	mWallCounterView->setString(cocos2d::__String::createWithFormat("%d", mWallCounter)->_string);
 }
 
-cocos2d::Sprite* prastie = nullptr;
+//cocos2d::Sprite* prastie = nullptr;
 
 bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
@@ -455,10 +462,11 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
-		prastie = cocos2d::Sprite::createWithSpriteFrameName("line");
-		prastie->setPosition(mBox->getPosition());
-		prastie->setAnchorPoint(cocos2d::Vec2(1, 0.5f));
-		mGameArea->addChild(prastie);
+	//	prastie = cocos2d::Sprite::createWithSpriteFrameName("line");
+	//	prastie->setPosition(mBox->getPosition());
+	//	prastie->setAnchorPoint(cocos2d::Vec2(1, 0.5f));
+	//	mGameArea->addChild(prastie);
+		startGame();
 	}
 	else if (mWallCounter > 0)
 	{
@@ -479,19 +487,20 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You moved id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
-	
+	/*
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
 		float angle = helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation());
 		cocos2d::log("normalized angle %f", angle);
 		prastie->setRotation(angle + 90);
 	}
+	*/
 }
 
 void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You ended move id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
-	
+	/*
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
 		startGame(helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation()));
@@ -499,6 +508,7 @@ void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 		prastie->removeFromParentAndCleanup(true);
 		prastie = nullptr;
 	}
+	*/
 }
 
 void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
@@ -557,17 +567,17 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_LEFT))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x), v.y));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x), 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_RIGHT))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x), v.y));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x), 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Wall::PHYSICS_TAG))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::min(v.y * 0.75f, std::max(v.y * 0.25f, -v.x * (0.5f + (rand() % 10) / 10.0f))), v.y));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-v.x, 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_HEAD, Wall::PHYSICS_TAG))
 	{
@@ -578,7 +588,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		//tmp
 		auto sprite = cocos2d::Sprite::createWithSpriteFrameName("clouds");
 		sprite->setPosition(wall->getPosition());
-		mScrollContainer->addChild(sprite);
+		wall->getParent()->addChild(sprite);
 		sprite->runAction(cocos2d::Sequence::create(cocos2d::FadeOut::create(0.8f), cocos2d::RemoveSelf::create(true), nullptr));
 		
 		GameScene::recycleWall(wall);
