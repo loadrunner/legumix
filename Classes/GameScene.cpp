@@ -1,5 +1,7 @@
 #include "GameScene.h"
 
+const float MAX_FORCE = 150.0f;
+
 GameScene::GameScene()
 {
 	cocos2d::log("game scene constructed");
@@ -34,6 +36,7 @@ bool GameScene::init()
 	
 	cocos2d::UserDefault* ud = cocos2d::UserDefault::getInstance();
 	
+	mGameStarted = false;
 	mIsGameServicesAvailable = false;
 	
 	mScreenSize = cocos2d::Director::getInstance()->getWinSize();
@@ -251,6 +254,9 @@ bool GameScene::init()
 	listener5->onContactBegin = CC_CALLBACK_1(GameScene::onContactBegin, this);
 	dispatcher->addEventListenerWithSceneGraphPriority(listener5, this);
 	
+	auto listener6 = cocos2d::EventListenerAcceleration::create(CC_CALLBACK_2(GameScene::onAcceleration, this));
+	dispatcher->addEventListenerWithSceneGraphPriority(listener6, this);
+	
 	this->schedule(schedule_selector(GameScene::update));
 	this->schedule(schedule_selector(GameScene::updateSlow), 0.5f);
 	
@@ -283,8 +289,11 @@ float timeFromLastObstacle = 0;
 
 void GameScene::update(float dt)
 {
-	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	if (!mGameStarted)
 		return;
+	
+	if (mCurrentAcceleration.x != 0)
+		mBox->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
 	
 	timeFromLastObstacle += dt;
 	
@@ -299,7 +308,7 @@ void GameScene::update(float dt)
 		mObstacles.pushBack(obs);
 	}
 	
-	mScrollContainer->setPositionY(mScrollContainer->getPositionY() - dt * 30);
+	mScrollContainer->setPositionY(mScrollContainer->getPositionY() - dt * 60);
 	
 	if (mBg2->getPositionY() - mBg2->getContentSize().height/2 <= -mScrollContainer->getPositionY())
 	{
@@ -330,7 +339,7 @@ void GameScene::updateSlow(float dt)
 		}
 	}
 	
-	if (mBox->getPhysicsBody()->getVelocity() != cocos2d::Vec2::ZERO)
+	if (mGameStarted)
 	{
 		mProgress += dt * 0.6f;
 		mProgressView->setString(cocos2d::__String::createWithFormat("%.1fm", mProgress)->_string);
@@ -358,9 +367,11 @@ void GameScene::startGame()
 	
 //	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(sin(angle), cos(angle)) * 70);
 	
-	mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(30, 0));
+	//mBox->getPhysicsBody()->setVelocity();
 	
 	moveGoodie();
+	
+	mGameStarted = true;
 }
 
 void GameScene::moveGoodie()
@@ -460,7 +471,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	cocos2d::log("You touched id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
-	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	if (!mGameStarted)
 	{
 	//	prastie = cocos2d::Sprite::createWithSpriteFrameName("line");
 	//	prastie->setPosition(mBox->getPosition());
@@ -515,6 +526,37 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 {
 	cocos2d::log("button press %d", (int) keyCode);
 	
+	if (!mGameStarted)
+	{
+		startGame();
+		return;
+	}
+	
+	float force = MAX_FORCE;
+	
+	switch (keyCode)
+	{
+		case cocos2d::EventKeyboard::KeyCode::KEY_LEFT_ARROW:
+		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_LEFT:
+			mCurrentAcceleration.x = -force;
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
+		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_RIGHT:
+			mCurrentAcceleration.x = force;
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_UP_ARROW:
+		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_UP:
+			mCurrentAcceleration.y = force;
+			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_DOWN_ARROW:
+		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN:
+			mCurrentAcceleration.y = -force;
+			break;
+		default:
+			return;
+	}
+	
+	mPressedKeys |= 1 << (int) keyCode;
 }
 
 void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
@@ -535,6 +577,37 @@ void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::
 	else if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_VOLUME_UP)
 	{
 		CocosDenshion::SimpleAudioEngine::getInstance()->increaseVolume();
+	}
+	
+	if (mPressedKeys != 0)
+	{
+		switch (keyCode)
+		{
+			case cocos2d::EventKeyboard::KeyCode::KEY_LEFT_ARROW:
+			case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_LEFT:
+				if (mCurrentAcceleration.x < 0)
+					mCurrentAcceleration.x = 0;
+				break;
+			case cocos2d::EventKeyboard::KeyCode::KEY_RIGHT_ARROW:
+			case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_RIGHT:
+				if (mCurrentAcceleration.x > 0)
+					mCurrentAcceleration.x = 0;
+				break;
+			case cocos2d::EventKeyboard::KeyCode::KEY_UP_ARROW:
+			case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_UP:
+				if (mCurrentAcceleration.y > 0)
+					mCurrentAcceleration.y = 0;
+				break;
+			case cocos2d::EventKeyboard::KeyCode::KEY_DOWN_ARROW:
+			case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN:
+				if (mCurrentAcceleration.y < 0)
+					mCurrentAcceleration.y = 0;
+				break;
+			default:
+				return;
+		}
+		
+		mPressedKeys &= ~(1 << (int) keyCode);
 	}
 }
 
@@ -567,17 +640,17 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_LEFT))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x), 0));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x) * 0.5f, 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_RIGHT))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x), 0));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x) * 0.5f, 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Wall::PHYSICS_TAG))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-v.x, 0));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-v.x * 0.5f, 0));
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_HEAD, Wall::PHYSICS_TAG))
 	{
@@ -599,6 +672,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		scene->retain();
 		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2::ZERO);
 		mBox->setColor(cocos2d::Color3B::GRAY);
+		mGameStarted = false;
 		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(1.5f),
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Director::replaceScene, cocos2d::Director::getInstance(), scene)),
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Ref::release, scene)), nullptr));
@@ -610,6 +684,14 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	}
 	
 	return false;
+}
+
+void GameScene::onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unused_event)
+{
+	mCurrentAcceleration.x = acc->x * MAX_FORCE;
+	mCurrentAcceleration.y = acc->y * MAX_FORCE;
+	
+	cocos2d::log("new acc %f %f (%f %f)", mCurrentAcceleration.x, mCurrentAcceleration.y, acc->x* MAX_FORCE, acc->y* MAX_FORCE);
 }
 
 void GameScene::onComeToForeground()

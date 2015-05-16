@@ -31,7 +31,11 @@ private:
 	cocos2d::Size mVisibleSize;
 	cocos2d::Vec2 mOrigin;
 	
+	bool mGameStarted;
 	bool mIsGameServicesAvailable;
+	
+	int mPressedKeys = 0;
+	cocos2d::Vec2 mCurrentAcceleration;
 	
 	cocos2d::Node* mGameArea;
 	cocos2d::Layer* mScrollContainer;
@@ -65,6 +69,7 @@ private:
 	void onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
 	void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
 	bool onContactBegin(const cocos2d::PhysicsContact& contact);
+	void onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unused_event);
 	void onComeToForeground();
 	void onComeToBackground();
 	
