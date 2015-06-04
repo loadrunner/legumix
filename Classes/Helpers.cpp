@@ -207,6 +207,27 @@ cocos2d::Node* Custom::getNodeByBodyTag(const cocos2d::PhysicsContact& contact, 
 	return nullptr;
 }
 
+cocos2d::PhysicsShape* PhysicsCollisions::getShape(const cocos2d::PhysicsContact& contact, int tag)
+{
+	if (contact.getShapeA()->getTag() == tag)
+		return contact.getShapeA();
+	
+	if (contact.getShapeB()->getTag() == tag)
+		return contact.getShapeB();
+	
+	return nullptr;
+}
+
+cocos2d::PhysicsShape* PhysicsCollisions::getShapeContactedBy(const cocos2d::PhysicsContact& contact, int tag)
+{
+	if (contact.getShapeA()->getTag() == tag)
+		return contact.getShapeB();
+	
+	if (contact.getShapeB()->getTag() == tag)
+		return contact.getShapeA();
+	
+	return nullptr;
+}
 
 }; // namespace helpers {
 

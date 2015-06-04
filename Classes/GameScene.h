@@ -55,6 +55,8 @@ private:
 	ObstaclePool mObstaclePool;
 	cocos2d::Vector<Obstacle*> mObstacles;
 	
+	BulletPool mBulletPool;
+	
 	float mProgress;
 	cocos2d::Label* mProgressView;
 	

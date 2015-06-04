@@ -75,7 +75,8 @@ cocos2d::Sprite* SpritePool::onAllocatePoolItem()
 void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 {
 	item->setScale(1);
-	item->stopAllActions();
+	item->setVisible(false);
+	item->pause();
 }
 
 Wall* Wall::create()
@@ -174,5 +175,64 @@ void ObstaclePool::onRecycleItem(Obstacle* item)
 	item->setPosition(-10, -10);
 	item->setVisible(false);
 	item->pause();
+}
+
+Bullet* Bullet::create()
+{
+	Bullet* bullet = new Bullet();
+	bullet->initWithSpriteFrameName("bullet");
+	bullet->autorelease();
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(bullet->getContentSize(), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	shape->setSensor(true);
+	body->addShape(shape);
+	
+	bullet->setPhysicsBody(body);
+	
+	return bullet;
+}
+
+void BulletPool::init(int capacity, cocos2d::Node* parent)
+{
+	if (getAvailableItemCount() > 0)
+		clearPool();
+	
+	mParent = parent;
+	
+	initWithCapacity(capacity);
+}
+
+Bullet* BulletPool::onAllocatePoolItem()
+{
+	Bullet* bullet = Bullet::create();
+	bullet->setVisible(false);
+	bullet->pause();
+	bullet->setPosition(-10, -10);
+	bullet->getPhysicsBody()->setDynamic(false);
+	mParent->addChild(bullet);
+	return bullet;
+}
+
+void BulletPool::onObtainItem(Bullet* item)
+{
+	item->setVisible(true);
+	item->resume();
+	item->getPhysicsBody()->setDynamic(true);
+}
+
+void BulletPool::onRecycleItem(Bullet* item)
+{
+	item->stopAllActions();
+	item->setPosition(-10, -10);
+	item->setScale(1);
+	item->setVisible(false);
+	item->pause();
+	item->getPhysicsBody()->setDynamic(false);
 }
 

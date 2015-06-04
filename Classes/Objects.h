@@ -154,4 +154,22 @@ protected:
 	void onRecycleItem(Obstacle* item) override;
 };
 
+class Bullet : public cocos2d::Sprite
+{
+public:
+	static Bullet* create();
+	static const int PHYSICS_TAG = 400;
+};
+
+class BulletPool : public GenericPool<Bullet*>
+{
+public:
+	void init(int capacity, cocos2d::Node* parent);
+protected:
+	cocos2d::Node* mParent;
+	Bullet* onAllocatePoolItem() override;
+	void onObtainItem(Bullet* item) override;
+	void onRecycleItem(Bullet* item) override;
+};
+
 #endif // __OBJECTS_H__

@@ -40,5 +40,12 @@ public:
 	static bool isContactBetweenAB(const cocos2d::PhysicsContact& contact, int tagA, int tagB);
 };
 
+class PhysicsCollisions
+{
+public:
+	static cocos2d::PhysicsShape* getShape(const cocos2d::PhysicsContact& contact, int tag);
+	static cocos2d::PhysicsShape* getShapeContactedBy(const cocos2d::PhysicsContact& contact, int tag);
+};
+
 }; // namespace helpers {
 #endif // __HELPERS_H__

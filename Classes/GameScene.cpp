@@ -277,6 +277,7 @@ void GameScene::initPools()
 	mWallCounterView->setString("5");
 	
 	mObstaclePool.init(10, mScrollContainer);
+	mBulletPool.init(20, mScrollContainer);
 }
 
 void GameScene::setParent(Node* child)
@@ -481,6 +482,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	}
 	else if (mWallCounter > 0)
 	{
+		/*
 		cocos2d::Vec2 local = mScrollContainer->convertToNodeSpace(touch->getLocation());
 		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(0.3f), cocos2d::CallFunc::create(CC_CALLBACK_0(GameScene::setManualWall, this, local)), nullptr));
 		
@@ -490,6 +492,17 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 		sprite->setOpacity(0);
 		mScrollContainer->addChild(sprite);
 		sprite->runAction(cocos2d::Sequence::create(cocos2d::FadeIn::create(0.4f), cocos2d::RemoveSelf::create(true), nullptr));
+		*/
+		
+		Bullet* bullet = mBulletPool.obtainPoolItem();
+		bullet->setPosition(cocos2d::Vec2(mBox->getPositionX(), -mScrollContainer->getPositionY() + mBox->getPositionY() + mBox->getContentSize().height * 0.7f));
+		bullet->runAction(cocos2d::Sequence::create(
+				cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
+				cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+				{
+					mBulletPool.recyclePoolItem((Bullet*) node);
+				}),
+				nullptr));
 	}
 	
 	return true;
@@ -552,6 +565,21 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_DOWN:
 			mCurrentAcceleration.y = -force;
 			break;
+		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_CENTER:
+		case cocos2d::EventKeyboard::KeyCode::KEY_ENTER:
+		case cocos2d::EventKeyboard::KeyCode::KEY_KP_ENTER:
+		{
+			Bullet* bullet = mBulletPool.obtainPoolItem();
+			bullet->setPosition(cocos2d::Vec2(mBox->getPositionX(), -mScrollContainer->getPositionY() + mBox->getPositionY() + mBox->getContentSize().height * 0.7f));
+			bullet->runAction(cocos2d::Sequence::create(
+					cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
+					cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+					{
+						mBulletPool.recyclePoolItem((Bullet*) node);
+					}),
+					nullptr));
+			break;
+		}
 		default:
 			return;
 	}
@@ -610,7 +638,6 @@ void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::
 		mPressedKeys &= ~(1 << (int) keyCode);
 	}
 }
-
 
 bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 {
@@ -677,10 +704,14 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Director::replaceScene, cocos2d::Director::getInstance(), scene)),
 				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Ref::release, scene)), nullptr));
 	}
-	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Obstacle::PHYSICS_TAG))
+	else if (helpers::Custom::isContactBetweenAB(contact, Obstacle::PHYSICS_TAG, Bullet::PHYSICS_TAG))
 	{
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.mp3");
-		moveGoodie();
+		Obstacle* obstacle = (Obstacle*) helpers::PhysicsCollisions::getShape(contact, Obstacle::PHYSICS_TAG)->getBody()->getNode();
+		mObstacles.eraseObject(obstacle);
+		mObstaclePool.recyclePoolItem(obstacle);
+		
+		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
+		mBulletPool.recyclePoolItem(bullet);
 	}
 	
 	return false;
