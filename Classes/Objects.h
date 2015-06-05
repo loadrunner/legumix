@@ -18,13 +18,6 @@ private:
 	bool mEnabled;
 };
 
-class Wall : public cocos2d::Sprite
-{
-public:
-	static Wall* create();
-	static const int PHYSICS_TAG = 110;
-};
-
 class Obstacle : public cocos2d::Sprite
 {
 public:
@@ -37,5 +30,18 @@ class Bullet : public cocos2d::Sprite
 public:
 	static Bullet* create();
 	static const int PHYSICS_TAG = 400;
+};
+
+class Collectable : public cocos2d::Sprite
+{
+public:
+	
+};
+
+class Coin : public Collectable
+{
+public:
+	static Coin* create();
+	static const int PHYSICS_TAG = 500;
 };
 

@@ -52,27 +52,6 @@ void MyMenuItem::setEnabled(bool state)
 	}
 }
 
-Wall* Wall::create()
-{
-	Wall* wall = new Wall();
-	wall->initWithSpriteFrameName("clouds");
-	wall->autorelease();
-	
-	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
-	body->setDynamic(false);
-	
-	cocos2d::PhysicsMaterial material(0, 1, 0);
-	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(wall->getContentSize(), material);
-	shape->setTag(PHYSICS_TAG);
-	shape->setContactTestBitmask(0xFFFFFFFF);
-	body->addShape(shape);
-	
-	wall->setPhysicsBody(body);
-	
-	return wall;
-}
-
 Obstacle* Obstacle::create()
 {
 	Obstacle* obstacle = new Obstacle();
@@ -113,4 +92,26 @@ Bullet* Bullet::create()
 	bullet->setPhysicsBody(body);
 	
 	return bullet;
+}
+
+Coin* Coin::create()
+{
+	Coin* coin = new Coin();
+	coin->initWithSpriteFrameName("coin");
+	coin->autorelease();
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(coin->getContentSize(), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	shape->setSensor(true);
+	body->addShape(shape);
+	body->setDynamic(false);
+	
+	coin->setPhysicsBody(body);
+	
+	return coin;
 }

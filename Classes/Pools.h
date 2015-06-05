@@ -104,16 +104,6 @@ protected:
 	void onRecycleItem(cocos2d::Sprite* item) override;
 };
 
-class WallPool : public GenericPool<Wall*>
-{
-public:
-	void init(int capacity, cocos2d::Node* parent);
-protected:
-	cocos2d::Node* mParent;
-	Wall* onAllocatePoolItem() override;
-	void onRecycleItem(Wall* item) override;
-};
-
 class ObstaclePool : public GenericPool<Obstacle*>
 {
 public:
@@ -133,5 +123,16 @@ protected:
 	Bullet* onAllocatePoolItem() override;
 	void onObtainItem(Bullet* item) override;
 	void onRecycleItem(Bullet* item) override;
+};
+
+class CoinPool : public GenericPool<Coin*>
+{
+public:
+	void init(int capacity, cocos2d::Node* parent);
+protected:
+	cocos2d::Node* mParent;
+	Coin* onAllocatePoolItem() override;
+	void onObtainItem(Coin* item) override;
+	void onRecycleItem(Coin* item) override;
 };
 

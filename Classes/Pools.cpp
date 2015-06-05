@@ -27,34 +27,6 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 	item->pause();
 }
 
-void WallPool::init(int capacity, cocos2d::Node* parent)
-{
-	if (getAvailableItemCount() > 0)
-		clearPool();
-	
-	mParent = parent;
-	
-	initWithCapacity(capacity);
-}
-
-Wall* WallPool::onAllocatePoolItem()
-{
-	Wall* wall = Wall::create();
-	wall->setVisible(false);
-	wall->pause();
-	wall->setPosition(-10, -10);
-	mParent->addChild(wall);
-	return wall;
-}
-
-void WallPool::onRecycleItem(Wall* item)
-{
-	item->setScale(1);
-	item->setPosition(-10, -10);
-	item->setVisible(false);
-	item->pause();
-}
-
 void ObstaclePool::init(int capacity, cocos2d::Node* parent)
 {
 	if (getAvailableItemCount() > 0)
@@ -119,5 +91,41 @@ void BulletPool::onRecycleItem(Bullet* item)
 	item->setVisible(false);
 	item->pause();
 	item->getPhysicsBody()->setDynamic(false);
+}
+
+void CoinPool::init(int capacity, cocos2d::Node* parent)
+{
+	if (getAvailableItemCount() > 0)
+		clearPool();
+	
+	mParent = parent;
+	
+	initWithCapacity(capacity);
+}
+
+Coin* CoinPool::onAllocatePoolItem()
+{
+	Coin* coin = Coin::create();
+	coin->setVisible(false);
+	coin->pause();
+	coin->setPosition(-10, -10);
+//	coin->getPhysicsBody()->setDynamic(false);
+	mParent->addChild(coin);
+	return coin;
+}
+
+void CoinPool::onObtainItem(Coin* item)
+{
+	item->setVisible(true);
+	item->resume();
+}
+
+void CoinPool::onRecycleItem(Coin* item)
+{
+	item->stopAllActions();
+	item->setPosition(-10, -10);
+	item->setScale(1);
+	item->setVisible(false);
+	item->pause();
 }
 

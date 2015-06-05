@@ -45,26 +45,20 @@ private:
 	cocos2d::Layer* mUILayer;
 	
 	cocos2d::Node* mBox;
-	cocos2d::Node* mGoodie;
 	
-	int mWallCounter;
-	cocos2d::Label* mWallCounterView;
-	
-	WallPool mWallPool;
-	cocos2d::Vector<Wall*> mManualWalls;
+	int mScore;
+	cocos2d::Label* mScoreView;
 	
 	ObstaclePool mObstaclePool;
 	cocos2d::Vector<Obstacle*> mObstacles;
 	
 	BulletPool mBulletPool;
+	CoinPool mCoinPool;
 	
 	float mProgress;
 	cocos2d::Label* mProgressView;
 	
 	void startGame();
-	void moveGoodie();
-	void setManualWall(const cocos2d::Vec2& point);
-	void recycleWall(Wall* wall);
 	
 	bool onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event);
 	void onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event);
