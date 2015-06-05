@@ -376,6 +376,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 					mBulletPool.recyclePoolItem((Bullet*) node);
 				}),
 				nullptr));
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("shoot.mp3");
 	}
 	
 	return true;
@@ -452,6 +453,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 						mBulletPool.recyclePoolItem((Bullet*) node);
 					}),
 					nullptr));
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("shoot.mp3");
 			break;
 		}
 		default:
@@ -587,6 +589,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 								nullptr));
 					}
 				}));
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Coin::PHYSICS_TAG))
 	{
@@ -595,7 +598,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		
 		mScore++;
 		mScoreView->setString(cocos2d::__String::createWithFormat("%d", mScore)->_string);
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.mp3");
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.wav");
 	}
 	
 	return false;
