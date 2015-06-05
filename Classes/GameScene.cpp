@@ -568,6 +568,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		case cocos2d::EventKeyboard::KeyCode::KEY_DPAD_CENTER:
 		case cocos2d::EventKeyboard::KeyCode::KEY_ENTER:
 		case cocos2d::EventKeyboard::KeyCode::KEY_KP_ENTER:
+		case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
 		{
 			Bullet* bullet = mBulletPool.obtainPoolItem();
 			bullet->setPosition(cocos2d::Vec2(mBox->getPositionX(), -mScrollContainer->getPositionY() + mBox->getPositionY() + mBox->getContentSize().height * 0.7f));
