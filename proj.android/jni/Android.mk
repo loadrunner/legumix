@@ -19,6 +19,7 @@ LOCAL_SRC_FILES := main.cpp \
 					../../Classes/Loader.cpp \
 					../../Classes/LoadingScene.cpp \
 					../../Classes/Objects.cpp \
+					../../Classes/Pools.cpp \
 					../../Classes/GameScene.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes

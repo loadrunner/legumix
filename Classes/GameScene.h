@@ -5,6 +5,7 @@
 #include "Helpers.h"
 #include "Loader.h"
 #include "Objects.h"
+#include "Pools.h"
 #include "AppDelegate.h"
 
 class GameScene : public cocos2d::LayerColor
