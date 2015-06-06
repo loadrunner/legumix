@@ -1,6 +1,6 @@
 #include "GameScene.h"
 
-const float MAX_FORCE = 15000.0f;
+const float MAX_FORCE = 40000.0f;
 
 GameScene::GameScene()
 {
@@ -186,7 +186,7 @@ bool GameScene::init()
 	body = cocos2d::PhysicsBody::create();
 	body->setVelocity(cocos2d::Vec2::ZERO);
 	body->setRotationEnable(false);
-	body->setLinearDamping(2.5f);
+	body->setLinearDamping(5.0f);
 	
 	cocos2d::PhysicsShape* bodyy = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 13), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, -2));
 	bodyy->setTag(PHYSICS_TAG_BOX_BODY);
