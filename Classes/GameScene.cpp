@@ -1,6 +1,6 @@
 #include "GameScene.h"
 
-const float MAX_FORCE = 150.0f;
+const float MAX_FORCE = 15000.0f;
 
 GameScene::GameScene()
 {
@@ -186,6 +186,7 @@ bool GameScene::init()
 	body = cocos2d::PhysicsBody::create();
 	body->setVelocity(cocos2d::Vec2::ZERO);
 	body->setRotationEnable(false);
+	body->setLinearDamping(2.5f);
 	
 	cocos2d::PhysicsShape* bodyy = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 13), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, -2));
 	bodyy->setTag(PHYSICS_TAG_BOX_BODY);
@@ -288,8 +289,9 @@ void GameScene::update(float dt)
 	if (!mGameStarted)
 		return;
 	
+	mBox->getPhysicsBody()->resetForces();
 	if (mCurrentAcceleration.x != 0)
-		mBox->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
+		mBox->getPhysicsBody()->applyForce(cocos2d::Vec2(mCurrentAcceleration.x, 0));
 	
 	timeFromLastObstacle += dt;
 	
@@ -606,10 +608,27 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 
 void GameScene::onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unused_event)
 {
-	mCurrentAcceleration.x = acc->x * MAX_FORCE;
-	mCurrentAcceleration.y = acc->y * MAX_FORCE;
+	std::function<float(float, float, float)> fix = [](float v, float min, float max)
+			{
+				if (v > max)
+					return 1.0f;
+				
+				if (v < -max)
+					return -1.0f;
+				
+				if (v < min && v > -min)
+					return 0.0f;
+				
+				return v / max;
+			};
 	
-	cocos2d::log("new acc %f %f (%f %f)", mCurrentAcceleration.x, mCurrentAcceleration.y, acc->x* MAX_FORCE, acc->y* MAX_FORCE);
+	float x = fix(acc->x, 0.02f, 0.4f);
+	float y = fix(acc->y, 0.02f, 0.4f);
+	
+	mCurrentAcceleration.x = x * MAX_FORCE;
+	mCurrentAcceleration.y = y * MAX_FORCE;
+	
+	cocos2d::log("new acc %f %f (%f %f)", acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
 }
 
 void GameScene::onComeToForeground()
