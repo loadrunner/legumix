@@ -1,6 +1,6 @@
 #include "GameScene.h"
 
-const float MAX_FORCE = 40000.0f;
+const float MAX_FORCE = 1000.0f;
 
 GameScene::GameScene()
 {
@@ -186,7 +186,7 @@ bool GameScene::init()
 	body = cocos2d::PhysicsBody::create();
 	body->setVelocity(cocos2d::Vec2::ZERO);
 	body->setRotationEnable(false);
-	body->setLinearDamping(5.0f);
+	body->setLinearDamping(7.5f);
 	
 	cocos2d::PhysicsShape* bodyy = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 13), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, -2));
 	bodyy->setTag(PHYSICS_TAG_BOX_BODY);
@@ -289,9 +289,9 @@ void GameScene::update(float dt)
 	if (!mGameStarted)
 		return;
 	
-	mBox->getPhysicsBody()->resetForces();
+	//mBox->getPhysicsBody()->resetForces();
 	if (mCurrentAcceleration.x != 0)
-		mBox->getPhysicsBody()->applyForce(cocos2d::Vec2(mCurrentAcceleration.x, 0));
+		mBox->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
 	
 	timeFromLastObstacle += dt;
 	
@@ -619,16 +619,16 @@ void GameScene::onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unuse
 				if (v < min && v > -min)
 					return 0.0f;
 				
-				return v / max;
+				return (v - (v > 0 ? min : -min)) / max;
 			};
 	
-	float x = fix(acc->x, 0.02f, 0.4f);
-	float y = fix(acc->y, 0.02f, 0.4f);
+	float x = fix(acc->x, 0.02f, 0.3f);
+	float y = fix(acc->y, 0.02f, 0.3f);
 	
 	mCurrentAcceleration.x = x * MAX_FORCE;
 	mCurrentAcceleration.y = y * MAX_FORCE;
 	
-	cocos2d::log("new acc %f %f (%f %f)", acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
+	cocos2d::log("new acc %f %f, %f %f (%f %f)", x, y, acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
 }
 
 void GameScene::onComeToForeground()
