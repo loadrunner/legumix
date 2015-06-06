@@ -120,7 +120,10 @@ bool AppDelegate::applicationDidFinishLaunching()
 	cocos2d::UserDefault* ud = cocos2d::UserDefault::getInstance();
 	showAds = !ud->getBoolForKey("remove_ads", false);
 	
-	cocos2d::Device::setAccelerometerEnabled(true);
+//	if (cocos2d::Device::hasGyroscope())
+//		cocos2d::Device::setGyroscopeEnabled(true);
+//	else
+		cocos2d::Device::setAccelerometerEnabled(true);
 	
 	// create a scene. it's an autorelease object
 	auto scene = LoadingScene::create();

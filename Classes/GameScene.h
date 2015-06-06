@@ -67,6 +67,7 @@ private:
 	void onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event);
 	bool onContactBegin(const cocos2d::PhysicsContact& contact);
 	void onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unused_event);
+	void onGyroscope(cocos2d::Gyroscope* gyro, cocos2d::Event* unused_event);
 	void onComeToForeground();
 	void onComeToBackground();
 	

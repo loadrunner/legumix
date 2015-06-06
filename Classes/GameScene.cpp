@@ -253,7 +253,11 @@ bool GameScene::init()
 	listener5->onContactBegin = CC_CALLBACK_1(GameScene::onContactBegin, this);
 	dispatcher->addEventListenerWithSceneGraphPriority(listener5, this);
 	
-	auto listener6 = cocos2d::EventListenerAcceleration::create(CC_CALLBACK_2(GameScene::onAcceleration, this));
+	cocos2d::EventListener* listener6;
+//	if (cocos2d::Device::hasGyroscope())
+//		listener6 = cocos2d::EventListenerGyroscope::create(CC_CALLBACK_2(GameScene::onGyroscope, this));
+//	else
+		listener6 = cocos2d::EventListenerAcceleration::create(CC_CALLBACK_2(GameScene::onAcceleration, this));
 	dispatcher->addEventListenerWithSceneGraphPriority(listener6, this);
 	
 	this->schedule(schedule_selector(GameScene::update));
@@ -629,6 +633,31 @@ void GameScene::onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unuse
 	mCurrentAcceleration.y = y * MAX_FORCE;
 	
 	cocos2d::log("new acc %f %f, %f %f (%f %f)", x, y, acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
+}
+
+void GameScene::onGyroscope(cocos2d::Gyroscope* gyro, cocos2d::Event* unused_event)
+{
+	std::function<float(float, float, float)> fix = [](float v, float min, float max)
+			{
+				if (v > max)
+					return 1.0f;
+				
+				if (v < -max)
+					return -1.0f;
+				
+				if (v < min && v > -min)
+					return 0.0f;
+				
+				return (v - (v > 0 ? min : -min)) / max;
+			};
+	
+	float x = fix(gyro->x, 0.0f, 0.1f);
+	float y = fix(gyro->y, 0.0f, 0.1f);
+	
+	mCurrentAcceleration.x = x * MAX_FORCE;
+	mCurrentAcceleration.y = y * MAX_FORCE;
+	
+	cocos2d::log("new gyro %f %f, %f %f (%f %f)", x, y, gyro->x, gyro->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
 }
 
 void GameScene::onComeToForeground()
