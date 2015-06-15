@@ -2,6 +2,7 @@
 #define __LOADINGSCENE_H__
 
 #include "cocos2d.h"
+#include "Loader.h"
 #include "GameScene.h"
 #include "Helpers.h"
 

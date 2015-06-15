@@ -21,9 +21,6 @@ bool LoadingScene::init()
 	mVisibleSize = cocos2d::Director::getInstance()->getVisibleSize();
 	mOrigin = cocos2d::Director::getInstance()->getVisibleOrigin();
 	
-	// Register Touch Event
-	auto dispatcher = cocos2d::Director::getInstance()->getEventDispatcher();
-	
 	cocos2d::LayerColor* bg = cocos2d::LayerColor::create(cocos2d::Color4B(44, 44, 44, 255));
 	this->addChild(bg);
 	
