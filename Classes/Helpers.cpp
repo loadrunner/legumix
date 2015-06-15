@@ -188,8 +188,8 @@ cocos2d::Node* Custom::getNodeByShapeTag(const cocos2d::PhysicsContact& contact,
 
 bool Custom::isContactBetweenAB(const cocos2d::PhysicsContact& contact, int tagA, int tagB)
 {
-	return ((contact.getShapeA()->getTag() & tagA) != 0 && (contact.getShapeB()->getTag() & tagB) != 0)
-	    || ((contact.getShapeA()->getTag() & tagB) != 0  && (contact.getShapeB()->getTag() & tagA) != 0);
+	return ((contact.getShapeA()->getTag() & tagA) == tagA && (contact.getShapeB()->getTag() & tagB) == tagB)
+	    || ((contact.getShapeA()->getTag() & tagB) == tagB  && (contact.getShapeB()->getTag() & tagA) == tagA);
 }
 
 cocos2d::Node* Custom::getNodeByBodyTag(const cocos2d::PhysicsContact& contact, int tag)
@@ -209,10 +209,10 @@ cocos2d::Node* Custom::getNodeByBodyTag(const cocos2d::PhysicsContact& contact, 
 
 cocos2d::PhysicsShape* PhysicsCollisions::getShape(const cocos2d::PhysicsContact& contact, int tag)
 {
-	if (contact.getShapeA()->getTag() & tag)
+	if ((contact.getShapeA()->getTag() & tag) == tag)
 		return contact.getShapeA();
 	
-	if (contact.getShapeB()->getTag() & tag)
+	if ((contact.getShapeB()->getTag() & tag) == tag)
 		return contact.getShapeB();
 	
 	return nullptr;
