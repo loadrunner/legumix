@@ -41,7 +41,7 @@ private:
 	cocos2d::Node* mBg2;
 	cocos2d::Layer* mUILayer;
 	
-	Hero* mBox;
+	Hero* mHero;
 	
 	int mScore;
 	cocos2d::Label* mScoreView;

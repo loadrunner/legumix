@@ -179,9 +179,9 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg2->setPhysicsBody(body);
 	
-	mBox = TomatoHero::create();
-	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
-	mGameArea->addChild(mBox);
+	mHero = TomatoHero::create();
+	mHero->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
+	mGameArea->addChild(mHero);
 	
 	mUILayer = cocos2d::Layer::create();
 	this->addChild(mUILayer, 200);
@@ -270,9 +270,9 @@ void GameScene::update(float dt)
 	if (!mGameStarted)
 		return;
 	
-	//mBox->getPhysicsBody()->resetForces();
+	//mHero->getPhysicsBody()->resetForces();
 	if (mCurrentAcceleration.x != 0)
-		mBox->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
+		mHero->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
 	
 	timeFromLastObstacle += dt;
 	
@@ -336,8 +336,8 @@ void GameScene::startGame()
 	mScore = 0;
 	mScoreView->setString("0");
 	
-	mBox->reset();
-	mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
+	mHero->reset();
+	mLifeView->setString(cocos2d::__String::createWithFormat("%d", mHero->getLife())->_string);
 	
 	mGameStarted = true;
 }
@@ -353,7 +353,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	else
 	{
 		Bullet* bullet = mBulletPool.obtainPoolItem();
-		bullet->setPosition(cocos2d::Vec2(mBox->getPositionX(), -mScrollContainer->getPositionY() + mBox->getPositionY() + mBox->getContentSize().height * 0.7f));
+		bullet->setPosition(cocos2d::Vec2(mHero->getPositionX(), -mScrollContainer->getPositionY() + mHero->getPositionY() + mHero->getContentSize().height * 0.7f));
 		bullet->runAction(cocos2d::Sequence::create(
 				cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
 				cocos2d::CallFuncN::create([this](cocos2d::Node* node)
@@ -371,9 +371,9 @@ void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	//cocos2d::log("You moved id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	/*
-	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	if (mHero->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
-		float angle = helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation());
+		float angle = helpers::Custom::getNormalizedAngle(mHero->getPosition(), touch->getLocation());
 		cocos2d::log("normalized angle %f", angle);
 		prastie->setRotation(angle + 90);
 	}
@@ -384,9 +384,9 @@ void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
 	//cocos2d::log("You ended move id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	/*
-	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
+	if (mHero->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
-		startGame(helpers::Custom::getNormalizedAngle(mBox->getPosition(), touch->getLocation()));
+		startGame(helpers::Custom::getNormalizedAngle(mHero->getPosition(), touch->getLocation()));
 		
 		prastie->removeFromParentAndCleanup(true);
 		prastie = nullptr;
@@ -430,7 +430,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
 		{
 			Bullet* bullet = mBulletPool.obtainPoolItem();
-			bullet->setPosition(cocos2d::Vec2(mBox->getPositionX(), -mScrollContainer->getPositionY() + mBox->getPositionY() + mBox->getContentSize().height * 0.7f));
+			bullet->setPosition(cocos2d::Vec2(mHero->getPositionX(), -mScrollContainer->getPositionY() + mHero->getPositionY() + mHero->getContentSize().height * 0.7f));
 			bullet->runAction(cocos2d::Sequence::create(
 					cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
 					cocos2d::CallFuncN::create([this](cocos2d::Node* node)
@@ -511,7 +511,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	}
 	*/
 	
-	cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
+	cocos2d::Vec2 v = mHero->getPhysicsBody()->getVelocity();
 	cocos2d::Vec2 newV = v;
 	
 //	if (std::abs(v.x) < 150 || std::abs(v.y) < 150)
@@ -523,19 +523,19 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 //	newV = helpers::Custom::normalizeVelocity(newV);
 	
 //	if (v != newV)
-//		mBox->getPhysicsBody()->setVelocity(newV);
+//		mHero->getPhysicsBody()->setVelocity(newV);
 	
 	if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, PHYSICS_TAG_EDGE))
 	{
-		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(v.x * -0.5f, 0));
-		mBox->loseLife();
-		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
+		cocos2d::Vec2 v = mHero->getPhysicsBody()->getVelocity();
+		mHero->getPhysicsBody()->setVelocity(cocos2d::Vec2(v.x * -0.5f, 0));
+		mHero->loseLife();
+		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mHero->getLife())->_string);
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Obstacle::PHYSICS_TAG))
 	{
-		mBox->loseLife();
-		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
+		mHero->loseLife();
+		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mHero->getLife())->_string);
 		//TODO: implement death
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Obstacle::PHYSICS_TAG, Bullet::PHYSICS_TAG))
