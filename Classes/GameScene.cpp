@@ -179,37 +179,9 @@ bool GameScene::init()
 	body->setContactTestBitmask(0xFFFFFFFF);
 	mBg2->setPhysicsBody(body);
 	
-	mBox = cocos2d::Sprite::createWithSpriteFrameName("plane");
+	mBox = TomatoHero::create();
 	mBox->setPosition(cocos2d::Vec2(mGameArea->getContentSize().width/2, mGameArea->getContentSize().height * 0.15f));
 	mGameArea->addChild(mBox);
-	
-	body = cocos2d::PhysicsBody::create();
-	body->setVelocity(cocos2d::Vec2::ZERO);
-	body->setRotationEnable(false);
-	body->setLinearDamping(7.5f);
-	
-	cocos2d::PhysicsShape* bodyy = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 13), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, -2));
-	bodyy->setTag(PHYSICS_TAG_BOX_BODY);
-	bodyy->setSensor(true);
-	body->addShape(bodyy);
-	
-	cocos2d::PhysicsShape* bot = cocos2d::PhysicsShapeBox::create(cocos2d::Size(3, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(0, 8));
-	bot->setTag(PHYSICS_TAG_BOX_HEAD);
-	bot->setSensor(true);
-	body->addShape(bot);
-	
-	cocos2d::PhysicsShape* leftWing = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(-6, -1));
-	leftWing->setTag(PHYSICS_TAG_BOX_WING);
-	leftWing->setSensor(true);
-	body->addShape(leftWing);
-	
-	cocos2d::PhysicsShape* rightWing = cocos2d::PhysicsShapeBox::create(cocos2d::Size(4, 2), cocos2d::PhysicsMaterial(1, 1, 0), cocos2d::Vec2(6, -1));
-	rightWing->setTag(PHYSICS_TAG_BOX_WING);
-	rightWing->setSensor(true);
-	body->addShape(rightWing);
-	
-	body->setContactTestBitmask(0xFFFFFFFF);
-	mBox->setPhysicsBody(body);
 	
 	mUILayer = cocos2d::Layer::create();
 	this->addChild(mUILayer, 200);
@@ -218,6 +190,11 @@ bool GameScene::init()
 	mScoreView->setPosition(cocos2d::Vec2(mOrigin.x + 10, mOrigin.y + mVisibleSize.height - 10));
 	mScoreView->setAnchorPoint(cocos2d::Vec2(0, 1));
 	mUILayer->addChild(mScoreView);
+	
+	mLifeView = cocos2d::Label::createWithTTF("", "fonts/default.ttf", 10);
+	mLifeView->setPosition(cocos2d::Vec2(mOrigin.x + mVisibleSize.width * 0.5f, mOrigin.y + mVisibleSize.height - 10));
+	mLifeView->setAnchorPoint(cocos2d::Vec2(0.5f, 1));
+	mUILayer->addChild(mLifeView);
 	
 	mProgress = 0;
 	
@@ -358,6 +335,9 @@ void GameScene::startGame()
 {
 	mScore = 0;
 	mScoreView->setString("0");
+	
+	mBox->reset();
+	mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
 	
 	mGameStarted = true;
 }
@@ -545,26 +525,18 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 //	if (v != newV)
 //		mBox->getPhysicsBody()->setVelocity(newV);
 	
-	if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_LEFT))
+	if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, PHYSICS_TAG_EDGE))
 	{
 		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(std::abs(v.x) * 0.5f, 0));
+		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(v.x * -0.5f, 0));
+		mBox->loseLife();
+		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
 	}
-	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, PHYSICS_TAG_EDGE_RIGHT))
+	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Obstacle::PHYSICS_TAG))
 	{
-		cocos2d::Vec2 v = mBox->getPhysicsBody()->getVelocity();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2(-std::abs(v.x) * 0.5f, 0));
-	}
-	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Obstacle::PHYSICS_TAG))
-	{
-		cocos2d::Scene* scene = GameScene::createScene();
-		scene->retain();
-		mBox->getPhysicsBody()->setVelocity(cocos2d::Vec2::ZERO);
-		mBox->setColor(cocos2d::Color3B::GRAY);
-		mGameStarted = false;
-		runAction(cocos2d::Sequence::create(cocos2d::DelayTime::create(1.5f),
-				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Director::replaceScene, cocos2d::Director::getInstance(), scene)),
-				cocos2d::CallFunc::create(CC_CALLBACK_0(cocos2d::Ref::release, scene)), nullptr));
+		mBox->loseLife();
+		mLifeView->setString(cocos2d::__String::createWithFormat("%d", mBox->getLife())->_string);
+		//TODO: implement death
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Obstacle::PHYSICS_TAG, Bullet::PHYSICS_TAG))
 	{
@@ -596,7 +568,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 				}));
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
 	}
-	else if (helpers::Custom::isContactBetweenAB(contact, PHYSICS_TAG_BOX_BODY, Coin::PHYSICS_TAG))
+	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Coin::PHYSICS_TAG))
 	{
 		Coin* coin = (Coin*) helpers::PhysicsCollisions::getShape(contact, Coin::PHYSICS_TAG)->getBody()->getNode();
 		mCoinPool.recyclePoolItem(coin);

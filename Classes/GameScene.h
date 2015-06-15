@@ -3,7 +3,7 @@
 
 #include "cocos2d.h"
 #include "Helpers.h"
-#include "Loader.h"
+#include "Hero.h"
 #include "Objects.h"
 #include "Pools.h"
 #include "AppDelegate.h"
@@ -17,10 +17,6 @@ public:
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
 	virtual bool init() override;
 	
-	const long PHYSICS_TAG_BOX = 1 << 0;
-	const long PHYSICS_TAG_BOX_BODY = PHYSICS_TAG_BOX | 1 << 1;
-	const long PHYSICS_TAG_BOX_HEAD = PHYSICS_TAG_BOX | 1 << 2;
-	const long PHYSICS_TAG_BOX_WING = PHYSICS_TAG_BOX | 1 << 3;
 	const long PHYSICS_TAG_EDGE = 1 << 4;
 	const long PHYSICS_TAG_EDGE_LEFT = PHYSICS_TAG_EDGE | 1 << 5;
 	const long PHYSICS_TAG_EDGE_RIGHT = PHYSICS_TAG_EDGE | 1 << 6;
@@ -45,10 +41,11 @@ private:
 	cocos2d::Node* mBg2;
 	cocos2d::Layer* mUILayer;
 	
-	cocos2d::Node* mBox;
+	Hero* mBox;
 	
 	int mScore;
 	cocos2d::Label* mScoreView;
+	cocos2d::Label* mLifeView;
 	
 	HaystackPool mHaystackPool;
 	cocos2d::Vector<Obstacle*> mObstacles;
