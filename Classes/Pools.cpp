@@ -27,7 +27,7 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 	item->pause();
 }
 
-void ObstaclePool::init(int capacity, cocos2d::Node* parent)
+void HaystackPool::init(int capacity, cocos2d::Node* parent)
 {
 	if (getAvailableItemCount() > 0)
 		clearPool();
@@ -37,9 +37,9 @@ void ObstaclePool::init(int capacity, cocos2d::Node* parent)
 	initWithCapacity(capacity);
 }
 
-Obstacle* ObstaclePool::onAllocatePoolItem()
+Haystack* HaystackPool::onAllocatePoolItem()
 {
-	Obstacle* obstacle = Obstacle::create();
+	Haystack* obstacle = Haystack::create();
 	obstacle->setVisible(false);
 	obstacle->pause();
 	obstacle->setPosition(-10, -10);
@@ -47,7 +47,7 @@ Obstacle* ObstaclePool::onAllocatePoolItem()
 	return obstacle;
 }
 
-void ObstaclePool::onRecycleItem(Obstacle* item)
+void HaystackPool::onRecycleItem(Haystack* item)
 {
 	item->setScale(1);
 	item->setPosition(-10, -10);

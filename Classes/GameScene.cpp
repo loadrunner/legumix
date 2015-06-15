@@ -275,7 +275,7 @@ bool GameScene::init()
 
 void GameScene::initPools()
 {
-	mObstaclePool.init(10, mScrollContainer);
+	mHaystackPool.init(10, mScrollContainer);
 	mBulletPool.init(20, mScrollContainer);
 	mCoinPool.init(50, mScrollContainer);
 }
@@ -303,7 +303,7 @@ void GameScene::update(float dt)
 	{
 		timeFromLastObstacle = 0;
 		
-		Obstacle* obs = mObstaclePool.obtainPoolItem();
+		Obstacle* obs = mHaystackPool.obtainPoolItem();
 		obs->setPosition(cocos2d::Vec2((mScreenSize.width - mBg1->getContentSize().width) / 2 + rand() % (int) mBg1->getContentSize().width, -mScrollContainer->getPositionY() + mScreenSize.height));
 		obs->setVisible(true);
 		mObstacles.pushBack(obs);
@@ -328,7 +328,8 @@ void GameScene::updateSlow(float dt)
 		if (obs->getPositionY() < -mScrollContainer->getPositionY())
 		{
 			mObstacles.eraseObject(obs);
-			mObstaclePool.recyclePoolItem(obs);
+			//TODO: check obstacle type
+			mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obs));
 		}
 	}
 	
@@ -570,7 +571,8 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		Obstacle* obstacle = (Obstacle*) helpers::PhysicsCollisions::getShape(contact, Obstacle::PHYSICS_TAG)->getBody()->getNode();
 		cocos2d::Vec2 pos = obstacle->getPosition();
 		mObstacles.eraseObject(obstacle);
-		mObstaclePool.recyclePoolItem(obstacle);
+		//TODO: check obstacle type
+		mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obstacle));
 		
 		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
 		mBulletPool.recyclePoolItem(bullet);

@@ -104,14 +104,14 @@ protected:
 	void onRecycleItem(cocos2d::Sprite* item) override;
 };
 
-class ObstaclePool : public GenericPool<Obstacle*>
+class HaystackPool : public GenericPool<Haystack*>
 {
 public:
 	void init(int capacity, cocos2d::Node* parent);
 protected:
 	cocos2d::Node* mParent;
-	Obstacle* onAllocatePoolItem() override;
-	void onRecycleItem(Obstacle* item) override;
+	Haystack* onAllocatePoolItem() override;
+	void onRecycleItem(Haystack* item) override;
 };
 
 class BulletPool : public GenericPool<Bullet*>

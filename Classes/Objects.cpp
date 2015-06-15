@@ -52,66 +52,82 @@ void MyMenuItem::setEnabled(bool state)
 	}
 }
 
-Obstacle* Obstacle::create()
+bool Bullet::init()
 {
-	Obstacle* obstacle = new Obstacle();
-	obstacle->initWithSpriteFrameName("obs");
-	obstacle->autorelease();
+	if (!cocos2d::Sprite::initWithSpriteFrameName("bullet"))
+		return false;
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(getContentSize(), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	shape->setSensor(true);
+	body->addShape(shape);
+	
+	setPhysicsBody(body);
+	
+	return true;
+}
+
+bool Object::init(const std::string& spriteFrameName)
+{
+	if (!cocos2d::Sprite::initWithSpriteFrameName(spriteFrameName))
+		return false;
+	
+	return true;
+}
+
+bool Obstacle::init(const std::string& spriteFrameName)
+{
+	return Object::init(spriteFrameName);
+}
+
+bool Haystack::init()
+{
+	if (!Obstacle::init("haystack"))
+		return false;
 	
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
 	body->setDynamic(false);
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(obstacle->getContentSize() * 0.7f, material);
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(
+			cocos2d::Size(getContentSize().width, getContentSize().height * 0.7f), material);
 	shape->setTag(PHYSICS_TAG);
 	shape->setContactTestBitmask(0xFFFFFFFF);
 	body->addShape(shape);
 	
-	obstacle->setPhysicsBody(body);
+	setPhysicsBody(body);
 	
-	return obstacle;
+	return true;
 }
 
-Bullet* Bullet::create()
+bool Collectable::init(const std::string& spriteFrameName)
 {
-	Bullet* bullet = new Bullet();
-	bullet->initWithSpriteFrameName("bullet");
-	bullet->autorelease();
+	return Object::init(spriteFrameName);
+}
+
+bool Coin::init()
+{
+	if (!Collectable::init("coin"))
+		return false;
 	
 	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
 	
 	cocos2d::PhysicsMaterial material(0, 1, 0);
 	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(bullet->getContentSize(), material);
-	shape->setTag(PHYSICS_TAG);
-	shape->setContactTestBitmask(0xFFFFFFFF);
-	shape->setSensor(true);
-	body->addShape(shape);
-	
-	bullet->setPhysicsBody(body);
-	
-	return bullet;
-}
-
-Coin* Coin::create()
-{
-	Coin* coin = new Coin();
-	coin->initWithSpriteFrameName("coin");
-	coin->autorelease();
-	
-	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
-	
-	cocos2d::PhysicsMaterial material(0, 1, 0);
-	
-	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(coin->getContentSize(), material);
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(getContentSize(), material);
 	shape->setTag(PHYSICS_TAG);
 	shape->setContactTestBitmask(0xFFFFFFFF);
 	shape->setSensor(true);
 	body->addShape(shape);
 	body->setDynamic(false);
 	
-	coin->setPhysicsBody(body);
+	setPhysicsBody(body);
 	
-	return coin;
+	return true;
 }

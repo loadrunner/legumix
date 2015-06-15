@@ -17,12 +17,13 @@ public:
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
 	virtual bool init() override;
 	
-	const int PHYSICS_TAG_BOX_BODY = 300;
-	const int PHYSICS_TAG_BOX_HEAD = 301;
-	const int PHYSICS_TAG_BOX_WING = 302;
-	const int PHYSICS_TAG_GOODIE = 1;
-	const int PHYSICS_TAG_EDGE_LEFT = 101;
-	const int PHYSICS_TAG_EDGE_RIGHT = 102;
+	const long PHYSICS_TAG_BOX = 1 << 0;
+	const long PHYSICS_TAG_BOX_BODY = PHYSICS_TAG_BOX | 1 << 1;
+	const long PHYSICS_TAG_BOX_HEAD = PHYSICS_TAG_BOX | 1 << 2;
+	const long PHYSICS_TAG_BOX_WING = PHYSICS_TAG_BOX | 1 << 3;
+	const long PHYSICS_TAG_EDGE = 1 << 4;
+	const long PHYSICS_TAG_EDGE_LEFT = PHYSICS_TAG_EDGE | 1 << 5;
+	const long PHYSICS_TAG_EDGE_RIGHT = PHYSICS_TAG_EDGE | 1 << 6;
 	
 private:
 	GameScene();
@@ -49,7 +50,7 @@ private:
 	int mScore;
 	cocos2d::Label* mScoreView;
 	
-	ObstaclePool mObstaclePool;
+	HaystackPool mHaystackPool;
 	cocos2d::Vector<Obstacle*> mObstacles;
 	
 	BulletPool mBulletPool;
