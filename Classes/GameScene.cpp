@@ -301,7 +301,6 @@ void GameScene::update(float dt)
 	
 	if (timeFromLastObstacle >= 1.2f)
 	{
-		cocos2d::log("add obs");
 		timeFromLastObstacle = 0;
 		
 		Obstacle* obs = mObstaclePool.obtainPoolItem();
@@ -328,7 +327,6 @@ void GameScene::updateSlow(float dt)
 		Obstacle* obs = mObstacles.front();
 		if (obs->getPositionY() < -mScrollContainer->getPositionY())
 		{
-			cocos2d::log("remove obs");
 			mObstacles.eraseObject(obs);
 			mObstaclePool.recyclePoolItem(obs);
 		}
@@ -365,7 +363,7 @@ void GameScene::startGame()
 
 bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-	cocos2d::log("You touched id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
+	//cocos2d::log("You touched id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	
 	if (!mGameStarted)
 	{
@@ -390,7 +388,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-	cocos2d::log("You moved id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
+	//cocos2d::log("You moved id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	/*
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
@@ -403,7 +401,7 @@ void GameScene::onTouchMoved(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 {
-	cocos2d::log("You ended move id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
+	//cocos2d::log("You ended move id %d - %f, %f", touch->getID(), touch->getLocation().x, touch->getLocation().y);
 	/*
 	if (mBox->getPhysicsBody()->getVelocity() == cocos2d::Vec2::ZERO)
 	{
@@ -417,7 +415,7 @@ void GameScene::onTouchEnded(cocos2d::Touch* touch, cocos2d::Event* event)
 
 void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
 {
-	cocos2d::log("button press %d", (int) keyCode);
+	//cocos2d::log("button press %d", (int) keyCode);
 	
 	if (!mGameStarted)
 	{
@@ -471,7 +469,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 
 void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::Event* event)
 {
-	cocos2d::log("button release %d", (int) keyCode);
+	//cocos2d::log("button release %d", (int) keyCode);
 	
 	if (keyCode == cocos2d::EventKeyboard::KeyCode::KEY_ESCAPE)
 	{
@@ -584,7 +582,6 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 					{
 						Coin* coin = mCoinPool.obtainPoolItem();
 						coin->setPosition(pos);
-						cocos2d::log("add coin to %f %f", pos.x, pos.y);
 						coin->runAction(cocos2d::Sequence::create(
 								cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
 								cocos2d::DelayTime::create(4.0f),
@@ -632,7 +629,7 @@ void GameScene::onAcceleration(cocos2d::Acceleration* acc, cocos2d::Event* unuse
 	mCurrentAcceleration.x = x * MAX_FORCE;
 	mCurrentAcceleration.y = y * MAX_FORCE;
 	
-	cocos2d::log("new acc %f %f, %f %f (%f %f)", x, y, acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
+	//cocos2d::log("new acc %f %f (%f %f)", acc->x, acc->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
 }
 
 void GameScene::onGyroscope(cocos2d::Gyroscope* gyro, cocos2d::Event* unused_event)
@@ -657,7 +654,7 @@ void GameScene::onGyroscope(cocos2d::Gyroscope* gyro, cocos2d::Event* unused_eve
 	mCurrentAcceleration.x = x * MAX_FORCE;
 	mCurrentAcceleration.y = y * MAX_FORCE;
 	
-	cocos2d::log("new gyro %f %f, %f %f (%f %f)", x, y, gyro->x, gyro->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
+	//cocos2d::log("new gyro %f %f, %f %f (%f %f)", x, y, gyro->x, gyro->y, mCurrentAcceleration.x, mCurrentAcceleration.y);
 }
 
 void GameScene::onComeToForeground()
