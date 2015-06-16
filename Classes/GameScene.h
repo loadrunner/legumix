@@ -7,6 +7,8 @@
 #include "Objects.h"
 #include "Pools.h"
 #include "AppDelegate.h"
+#include "WorldLayer.h"
+#include "UILayer.h"
 
 class GameScene : public cocos2d::LayerColor
 {
@@ -16,10 +18,6 @@ public:
 	
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
 	virtual bool init() override;
-	
-	const long PHYSICS_TAG_EDGE = 1 << 4;
-	const long PHYSICS_TAG_EDGE_LEFT = PHYSICS_TAG_EDGE | 1 << 5;
-	const long PHYSICS_TAG_EDGE_RIGHT = PHYSICS_TAG_EDGE | 1 << 6;
 	
 private:
 	GameScene();
@@ -35,17 +33,10 @@ private:
 	int mPressedKeys = 0;
 	cocos2d::Vec2 mCurrentAcceleration;
 	
-	cocos2d::Node* mGameArea;
-	cocos2d::Layer* mScrollContainer;
-	cocos2d::Node* mBg1;
-	cocos2d::Node* mBg2;
-	cocos2d::Layer* mUILayer;
+	WorldLayer* mWorldLayer;
+	UILayer* mUILayer;
 	
 	Hero* mHero;
-	
-	int mScore;
-	cocos2d::Label* mScoreView;
-	cocos2d::Label* mLifeView;
 	
 	HaystackPool mHaystackPool;
 	cocos2d::Vector<Obstacle*> mObstacles;
@@ -53,8 +44,8 @@ private:
 	BulletPool mBulletPool;
 	CoinPool mCoinPool;
 	
+	int mScore;
 	float mProgress;
-	cocos2d::Label* mProgressView;
 	
 	void startGame();
 	

@@ -21,7 +21,9 @@ LOCAL_SRC_FILES := main.cpp \
 					../../Classes/Hero.cpp \
 					../../Classes/Objects.cpp \
 					../../Classes/Pools.cpp \
-					../../Classes/GameScene.cpp
+					../../Classes/GameScene.cpp \
+					../../Classes/WorldLayer.cpp \
+					../../Classes/UILayer.cpp
 
 LOCAL_C_INCLUDES := $(LOCAL_PATH)/../../Classes
 

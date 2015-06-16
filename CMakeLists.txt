@@ -127,6 +127,8 @@ set(GAME_SRC
   Classes/Objects.cpp
   Classes/Pools.cpp
   Classes/GameScene.cpp
+  Classes/WorldLayer.cpp
+  Classes/UILayer.cpp
   ${PLATFORM_SPECIFIC_SRC}
 )
 
@@ -140,6 +142,8 @@ set(GAME_HEADERS
   Classes/Objects.h
   Classes/Pools.h
   Classes/GameScene.h
+  Classes/WorldLayer.h
+  Classes/UILayer.h
   ${PLATFORM_SPECIFIC_HEADERS}
 )
 
