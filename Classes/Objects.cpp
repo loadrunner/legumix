@@ -131,3 +131,45 @@ bool Coin::init()
 	
 	return true;
 }
+
+bool Tomato::init()
+{
+	if (!Collectable::init("tomato_small"))
+		return false;
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(getContentSize(), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	shape->setSensor(true);
+	body->addShape(shape);
+	body->setDynamic(false);
+	
+	setPhysicsBody(body);
+	
+	return true;
+}
+
+bool Broccoli::init()
+{
+	if (!Collectable::init("broccoli_small"))
+		return false;
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(getContentSize(), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	shape->setSensor(true);
+	body->addShape(shape);
+	body->setDynamic(false);
+	
+	setPhysicsBody(body);
+	
+	return true;
+}

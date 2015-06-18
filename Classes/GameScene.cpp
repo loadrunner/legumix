@@ -10,6 +10,8 @@ GameScene::GameScene()
 GameScene::~GameScene()
 {
 	cocos2d::log("game scene destructed");
+	
+	//TODO: empty pools
 }
 
 cocos2d::Scene* GameScene::createScene()
@@ -112,9 +114,11 @@ bool GameScene::init()
 
 void GameScene::initPools()
 {
-	mHaystackPool.init(10, mWorldLayer->getScrollContainer());
+	mHaystackPool.init(10, Haystack::create(), mWorldLayer->getScrollContainer());
 	mBulletPool.init(20, mWorldLayer->getScrollContainer());
-	mCoinPool.init(50, mWorldLayer->getScrollContainer());
+	mCoinPool.init(50, Coin::create(), mWorldLayer->getScrollContainer());
+	mTomatoPool.init(50, Tomato::create(), mWorldLayer->getScrollContainer());
+	mBroccoliPool.init(50, Broccoli::create(), mWorldLayer->getScrollContainer());
 }
 
 void GameScene::setParent(Node* child)
@@ -140,7 +144,7 @@ void GameScene::update(float dt)
 	{
 		timeFromLastObstacle = 0;
 		
-		Obstacle* obs = mHaystackPool.obtainPoolItem();
+		Obstacle* obs = (Obstacle*) mHaystackPool.obtainPoolItem();
 		obs->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
 		obs->setVisible(true);
 		mObstacles.pushBack(obs);
@@ -408,7 +412,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 					int n = 2 + rand() % 8;
 					for (int i = 0; i < n; i++)
 					{
-						Coin* coin = mCoinPool.obtainPoolItem();
+						Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
 						coin->setPosition(pos);
 						coin->runAction(cocos2d::Sequence::create(
 								cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),

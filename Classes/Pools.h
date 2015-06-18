@@ -104,14 +104,16 @@ protected:
 	void onRecycleItem(cocos2d::Sprite* item) override;
 };
 
-class HaystackPool : public GenericPool<Haystack*>
+class ObjectPool : public GenericPool<Object*>
 {
 public:
-	void init(int capacity, cocos2d::Node* parent);
+	void init(int capacity, Object* sample, cocos2d::Node* parent);
 protected:
 	cocos2d::Node* mParent;
-	Haystack* onAllocatePoolItem() override;
-	void onRecycleItem(Haystack* item) override;
+	Object* mSample;
+	Object* onAllocatePoolItem() override;
+	void onObtainItem(Object* item) override;
+	void onRecycleItem(Object* item) override;
 };
 
 class BulletPool : public GenericPool<Bullet*>
@@ -124,15 +126,3 @@ protected:
 	void onObtainItem(Bullet* item) override;
 	void onRecycleItem(Bullet* item) override;
 };
-
-class CoinPool : public GenericPool<Coin*>
-{
-public:
-	void init(int capacity, cocos2d::Node* parent);
-protected:
-	cocos2d::Node* mParent;
-	Coin* onAllocatePoolItem() override;
-	void onObtainItem(Coin* item) override;
-	void onRecycleItem(Coin* item) override;
-};
-

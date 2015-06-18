@@ -27,30 +27,45 @@ void SpritePool::onRecycleItem(cocos2d::Sprite* item)
 	item->pause();
 }
 
-void HaystackPool::init(int capacity, cocos2d::Node* parent)
+void ObjectPool::init(int capacity, Object* sample, cocos2d::Node* parent)
 {
 	if (getAvailableItemCount() > 0)
 		clearPool();
 	
 	mParent = parent;
+	mSample = sample;
+	mSample->setVisible(false);
+	mSample->pause();
+	mSample->setPosition(-10, -10);
+	mParent->addChild(mSample);
+	//TODO: enable retain, and implement release
+//	mSample->retain();
 	
 	initWithCapacity(capacity);
 }
 
-Haystack* HaystackPool::onAllocatePoolItem()
+Object* ObjectPool::onAllocatePoolItem()
 {
-	Haystack* obstacle = Haystack::create();
-	obstacle->setVisible(false);
-	obstacle->pause();
-	obstacle->setPosition(-10, -10);
-	mParent->addChild(obstacle);
-	return obstacle;
+	Object* item = mSample->clone();
+	item->setVisible(false);
+	item->pause();
+	item->setPosition(-10, -10);
+//	item->getPhysicsBody()->setDynamic(false);
+	mParent->addChild(item);
+	return item;
 }
 
-void HaystackPool::onRecycleItem(Haystack* item)
+void ObjectPool::onObtainItem(Object* item)
 {
-	item->setScale(1);
+	item->setVisible(true);
+	item->resume();
+}
+
+void ObjectPool::onRecycleItem(Object* item)
+{
+	item->stopAllActions();
 	item->setPosition(-10, -10);
+	item->setScale(1);
 	item->setVisible(false);
 	item->pause();
 }
@@ -92,40 +107,3 @@ void BulletPool::onRecycleItem(Bullet* item)
 	item->pause();
 	item->getPhysicsBody()->setDynamic(false);
 }
-
-void CoinPool::init(int capacity, cocos2d::Node* parent)
-{
-	if (getAvailableItemCount() > 0)
-		clearPool();
-	
-	mParent = parent;
-	
-	initWithCapacity(capacity);
-}
-
-Coin* CoinPool::onAllocatePoolItem()
-{
-	Coin* coin = Coin::create();
-	coin->setVisible(false);
-	coin->pause();
-	coin->setPosition(-10, -10);
-//	coin->getPhysicsBody()->setDynamic(false);
-	mParent->addChild(coin);
-	return coin;
-}
-
-void CoinPool::onObtainItem(Coin* item)
-{
-	item->setVisible(true);
-	item->resume();
-}
-
-void CoinPool::onRecycleItem(Coin* item)
-{
-	item->stopAllActions();
-	item->setPosition(-10, -10);
-	item->setScale(1);
-	item->setVisible(false);
-	item->pause();
-}
-

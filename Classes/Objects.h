@@ -32,7 +32,9 @@ class Object : public cocos2d::Sprite
 public:
 	static const unsigned long PHYSICS_TAG = 1 << 12;
 	
+	virtual Object* clone() const = 0;
 	virtual bool init(const std::string& spriteFrameName);
+	virtual bool init() = 0;
 	virtual bool canBeShotBy(const long tag) = 0;
 };
 
@@ -49,8 +51,9 @@ class Haystack : public Obstacle
 public:
 	static const unsigned long PHYSICS_TAG = Obstacle::PHYSICS_TAG | 1 << 14;
 	
-	bool init();
+	virtual bool init() override;
 	CREATE_FUNC(Haystack);
+	inline virtual Haystack* clone() const { return Haystack::create(); }
 	
 	inline bool canBeShotBy(const long tag) override { return tag & Bullet::PHYSICS_TAG; };
 };
@@ -68,9 +71,33 @@ class Coin : public Collectable
 public:
 	static const unsigned long PHYSICS_TAG = Collectable::PHYSICS_TAG | 1 << 21;
 	
-	bool init();
+	virtual bool init() override;
 	CREATE_FUNC(Coin);
+	inline virtual Coin* clone() const { return Coin::create(); }
 	
 	inline bool canBeShotBy(const long tag) override { return false; };
 };
 
+class Tomato : public Collectable
+{
+public:
+	static const unsigned long PHYSICS_TAG = Collectable::PHYSICS_TAG | 1 << 22;
+	
+	virtual bool init() override;
+	CREATE_FUNC(Tomato);
+	inline virtual Haystack* clone() const { return Haystack::create(); }
+	
+	inline bool canBeShotBy(const long tag) override { return false; };
+};
+
+class Broccoli : public Collectable
+{
+public:
+	static const unsigned long PHYSICS_TAG = Collectable::PHYSICS_TAG | 1 << 23;
+	
+	virtual bool init() override;
+	CREATE_FUNC(Broccoli);
+	inline virtual Broccoli* clone() const { return Broccoli::create(); }
+	
+	inline bool canBeShotBy(const long tag) override { return false; };
+};

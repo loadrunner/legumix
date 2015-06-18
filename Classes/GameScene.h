@@ -38,11 +38,14 @@ private:
 	
 	Hero* mHero;
 	
-	HaystackPool mHaystackPool;
+	ObjectPool mHaystackPool;
 	cocos2d::Vector<Obstacle*> mObstacles;
 	
 	BulletPool mBulletPool;
-	CoinPool mCoinPool;
+	ObjectPool mCoinPool;
+	
+	ObjectPool mTomatoPool;
+	ObjectPool mBroccoliPool;
 	
 	int mScore;
 	float mProgress;
