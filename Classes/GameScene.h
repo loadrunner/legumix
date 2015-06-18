@@ -39,7 +39,7 @@ private:
 	Hero* mHero;
 	
 	ObjectPool mHaystackPool;
-	cocos2d::Vector<Obstacle*> mObstacles;
+	cocos2d::Vector<Object*> mObjects;
 	
 	BulletPool mBulletPool;
 	ObjectPool mCoinPool;

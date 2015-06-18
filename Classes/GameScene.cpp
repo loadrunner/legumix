@@ -140,14 +140,32 @@ void GameScene::update(float dt)
 	
 	timeFromLastObstacle += dt;
 	
-	if (timeFromLastObstacle >= 1.2f)
+	if (timeFromLastObstacle >= 0.6f)
 	{
 		timeFromLastObstacle = 0;
 		
-		Obstacle* obs = (Obstacle*) mHaystackPool.obtainPoolItem();
-		obs->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
-		obs->setVisible(true);
-		mObstacles.pushBack(obs);
+		Object* obj;
+		switch (rand()%3)
+		{
+			case 1:
+				obj = mTomatoPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+				break;
+			case 2:
+				obj = mBroccoliPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+				break;
+			case 0:
+			default:
+				obj = mHaystackPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+		}
 	}
 	
 	mWorldLayer->update(dt);
@@ -155,14 +173,41 @@ void GameScene::update(float dt)
 
 void GameScene::updateSlow(float dt)
 {
-	if (mObstacles.size() > 0)
+	if (mObjects.size() > 0)
 	{
-		Obstacle* obs = mObstacles.front();
-		if (obs->getPositionY() < -mWorldLayer->getScrollContainer()->getPositionY())
+		while (1)
 		{
-			mObstacles.eraseObject(obs);
-			//TODO: check obstacle type
-			mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obs));
+			Object* obj = mObjects.front();
+			if (obj->getPositionY() < -mWorldLayer->getScrollContainer()->getPositionY())
+			{
+				mObjects.eraseObject(obj);
+				
+				Haystack* haystack = dynamic_cast<Haystack*>(obj);
+				if (haystack != nullptr)
+				{
+					cocos2d::log("recycle hay");
+					mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obj));
+					continue;
+				}
+				
+				Tomato* tomato = dynamic_cast<Tomato*>(obj);
+				if (tomato != nullptr)
+				{
+					cocos2d::log("recycle tom");
+					mTomatoPool.recyclePoolItem(tomato);
+					continue;
+				}
+				
+				Broccoli* broccoli = dynamic_cast<Broccoli*>(obj);
+				if (broccoli != nullptr)
+				{
+					cocos2d::log("recycle bro");
+					mBroccoliPool.recyclePoolItem(broccoli);
+					continue;
+				}
+			}
+			else
+				break;
 		}
 	}
 	
@@ -400,9 +445,53 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	{
 		Obstacle* obstacle = (Obstacle*) helpers::PhysicsCollisions::getShape(contact, Obstacle::PHYSICS_TAG)->getBody()->getNode();
 		cocos2d::Vec2 pos = obstacle->getPosition();
-		mObstacles.eraseObject(obstacle);
+		mObjects.eraseObject(obstacle);
 		//TODO: check obstacle type
 		mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obstacle));
+		
+		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
+		mBulletPool.recyclePoolItem(bullet);
+		
+		runAction(cocos2d::CallFunc::create([this, pos]()
+				{
+					int n = 2 + rand() % 8;
+					for (int i = 0; i < n; i++)
+					{
+						Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+						coin->setPosition(pos);
+						coin->runAction(cocos2d::Sequence::create(
+								cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+								cocos2d::DelayTime::create(4.0f),
+								cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+								{
+									mCoinPool.recyclePoolItem((Coin*) node);
+								}),
+								nullptr));
+					}
+				}));
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+	}
+	else if (helpers::Custom::isContactBetweenAB(contact, Collectable::PHYSICS_TAG, Bullet::PHYSICS_TAG))
+	{
+		Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
+		
+		Coin* coin = dynamic_cast<Coin*>(collectable);
+		if (coin != nullptr)
+		{
+			mCoinPool.recyclePoolItem(coin);
+			return false;
+		}
+		
+		cocos2d::Vec2 pos = collectable->getPosition();
+		mObjects.eraseObject(collectable);
+		
+		Tomato* tomato = dynamic_cast<Tomato*>(collectable);
+		if (tomato != nullptr)
+			mTomatoPool.recyclePoolItem(tomato);
+		
+		Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
+		if (broccoli != nullptr)
+			mBroccoliPool.recyclePoolItem(broccoli);
 		
 		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
 		mBulletPool.recyclePoolItem(bullet);
@@ -434,6 +523,26 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		mScore++;
 		mUILayer->updateScore(mScore);
 		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.wav");
+	}
+	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Collectable::PHYSICS_TAG))
+	{
+		Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
+		cocos2d::Vec2 pos = collectable->getPosition();
+		mObjects.eraseObject(collectable);
+		
+		Tomato* tomato = dynamic_cast<Tomato*>(collectable);
+		if (tomato != nullptr)
+		{
+			mTomatoPool.recyclePoolItem(tomato);
+			
+			mHero->increaseLife();
+			mUILayer->updateLife(mHero->getLife());
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("collect.wav");
+		}
+		
+		Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
+		if (broccoli != nullptr)
+			mBroccoliPool.recyclePoolItem(broccoli);
 	}
 	
 	return false;

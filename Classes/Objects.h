@@ -85,7 +85,7 @@ public:
 	
 	virtual bool init() override;
 	CREATE_FUNC(Tomato);
-	inline virtual Haystack* clone() const { return Haystack::create(); }
+	inline virtual Tomato* clone() const { return Tomato::create(); }
 	
 	inline bool canBeShotBy(const long tag) override { return false; };
 };
