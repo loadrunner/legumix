@@ -175,7 +175,7 @@ void GameScene::updateSlow(float dt)
 {
 	if (mObjects.size() > 0)
 	{
-		while (1)
+		while (!mObjects.empty())
 		{
 			Object* obj = mObjects.front();
 			if (obj->getPositionY() < -mWorldLayer->getScrollContainer()->getPositionY())
@@ -186,7 +186,7 @@ void GameScene::updateSlow(float dt)
 				if (haystack != nullptr)
 				{
 					cocos2d::log("recycle hay");
-					mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obj));
+					mHaystackPool.recyclePoolItem(haystack);
 					continue;
 				}
 				
