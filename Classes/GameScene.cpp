@@ -567,6 +567,37 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
 				}
 			}
+			
+			Enemy* enemy = dynamic_cast<Enemy*>(object);
+			if (enemy != nullptr)
+			{
+				Tower* tower = dynamic_cast<Tower*>(enemy);
+				if (tower != nullptr)
+					if (dead)
+						mTowerPool.recyclePoolItem(tower);
+				
+				if (dead)
+				{
+					runAction(cocos2d::CallFunc::create([this, pos]()
+							{
+								int n = 2 + rand() % 8;
+								for (int i = 0; i < n; i++)
+								{
+									Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+									coin->setPosition(pos);
+									coin->runAction(cocos2d::Sequence::create(
+											cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+											cocos2d::DelayTime::create(4.0f),
+											cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+											{
+												mCoinPool.recyclePoolItem((Coin*) node);
+											}),
+											nullptr));
+								}
+							}));
+					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+				}
+			}
 		}
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Coin::PHYSICS_TAG))

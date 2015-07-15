@@ -68,6 +68,7 @@ void ObjectPool::onRecycleItem(Object* item)
 	item->setScale(1);
 	item->setVisible(false);
 	item->pause();
+	item->reset();
 }
 
 void BulletPool::init(int capacity, cocos2d::Node* parent)

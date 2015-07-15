@@ -33,6 +33,7 @@ public:
 	static const unsigned long PHYSICS_TAG = 1 << 12;
 	
 	virtual Object* clone() const = 0;
+	virtual void reset() = 0;
 	virtual bool init(const std::string& spriteFrameName);
 	virtual bool init() = 0;
 	virtual bool canBeShotBy(const long tag) = 0;
@@ -55,6 +56,7 @@ public:
 	virtual bool init() override;
 	CREATE_FUNC(Haystack);
 	inline virtual Haystack* clone() const { return Haystack::create(); }
+	inline void reset() { };
 	
 	inline bool canBeShotBy(const long tag) override { return tag & Bullet::PHYSICS_TAG; };
 	inline bool hit(const long tag, int power) { return true; };
@@ -76,6 +78,7 @@ public:
 	virtual bool init() override;
 	CREATE_FUNC(Coin);
 	inline virtual Coin* clone() const { return Coin::create(); }
+	inline void reset() { };
 	
 	inline bool canBeShotBy(const long tag) override { return false; };
 	inline bool hit(const long tag, int power) { return false; };
@@ -89,6 +92,7 @@ public:
 	virtual bool init() override;
 	CREATE_FUNC(Tomato);
 	inline virtual Tomato* clone() const { return Tomato::create(); }
+	inline void reset() { };
 	
 	inline bool canBeShotBy(const long tag) override { return true; };
 	inline bool hit(const long tag, int power) { return true; };
@@ -102,6 +106,7 @@ public:
 	virtual bool init() override;
 	CREATE_FUNC(Broccoli);
 	inline virtual Broccoli* clone() const { return Broccoli::create(); }
+	inline void reset() { };
 	
 	inline bool canBeShotBy(const long tag) override { return true; };
 	inline bool hit(const long tag, int power) { return true; };
@@ -114,18 +119,22 @@ public:
 	
 	virtual bool init(const std::string& spriteFrameName) override;
 	virtual void update(cocos2d::Vec2 heroPos) = 0;
+protected:
+	int mLife;
 };
 
 class Tower : public Enemy
 {
 public:
 	static const unsigned long PHYSICS_TAG = Enemy::PHYSICS_TAG | 1 << 29;
+	static const int MAX_LIVES = 3;
 	
 	virtual bool init() override;
 	CREATE_FUNC(Tower);
 	inline virtual Tower* clone() const { return Tower::create(); }
+	inline void reset() { mLife = MAX_LIVES; };
 	
-	inline bool canBeShotBy(const long tag) override { return false; };
-	inline bool hit(const long tag, int power) { return false; };
+	inline bool canBeShotBy(const long tag) override { return true; };
+	inline bool hit(const long tag, int power) { return --mLife <= 0 ? true : false; };
 	void update(cocos2d::Vec2 heroPos) override;
 };

@@ -199,6 +199,8 @@ bool Tower::init()
 	
 	setPhysicsBody(body);
 	
+	mLife = MAX_LIVES;
+	
 	return true;
 }
 
