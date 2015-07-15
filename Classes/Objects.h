@@ -25,6 +25,11 @@ public:
 	
 	bool init();
 	CREATE_FUNC(Bullet);
+	
+	inline cocos2d::Ref* getLauncher() { return mLauncher; };
+	inline void setLauncher(cocos2d::Ref* node) { mLauncher = node; };
+private:
+	cocos2d::Ref* mLauncher;
 };
 
 class Object : public cocos2d::Sprite

@@ -71,6 +71,8 @@ bool Bullet::init()
 	
 	setPhysicsBody(body);
 	
+	mLauncher = nullptr;
+	
 	return true;
 }
 
@@ -212,6 +214,7 @@ void Tower::update(cocos2d::Vec2 heroPos)
 	if (dist < 2500)
 	{
 		Bullet* bullet = GameScene::mBulletPool.obtainPoolItem();
+		bullet->setLauncher(this);
 		bullet->setRotation(90 - ang);
 		bullet->setPosition(cocos2d::Vec2(getPosition()));
 		bullet->runAction(cocos2d::Sequence::create(

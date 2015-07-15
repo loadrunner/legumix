@@ -281,6 +281,7 @@ bool GameScene::onTouchBegan(cocos2d::Touch* touch, cocos2d::Event* event)
 	else
 	{
 		Bullet* bullet = mBulletPool.obtainPoolItem();
+		bullet->setLauncher(mHero);
 		bullet->setPosition(cocos2d::Vec2(mHero->getPositionX(), -mWorldLayer->getScrollContainer()->getPositionY() + mHero->getPositionY() + mHero->getContentSize().height * 0.7f));
 		bullet->runAction(cocos2d::Sequence::create(
 				cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
@@ -358,6 +359,7 @@ void GameScene::onKeyPressed(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::E
 		case cocos2d::EventKeyboard::KeyCode::KEY_SPACE:
 		{
 			Bullet* bullet = mBulletPool.obtainPoolItem();
+			bullet->setLauncher(mHero);
 			bullet->setPosition(cocos2d::Vec2(mHero->getPositionX(), -mWorldLayer->getScrollContainer()->getPositionY() + mHero->getPositionY() + mHero->getContentSize().height * 0.7f));
 			bullet->runAction(cocos2d::Sequence::create(
 					cocos2d::MoveBy::create(0.5f, cocos2d::Vec2(0, 200)),
@@ -470,6 +472,9 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	{
 		cocos2d::Node* node = helpers::PhysicsCollisions::getShapeContactedBy(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
 		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
+		
+		if (node != nullptr && bullet->getLauncher() == node)
+			return false; // ignore own bullet
 		
 		if (node == mHero)
 		{

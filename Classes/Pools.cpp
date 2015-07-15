@@ -108,4 +108,5 @@ void BulletPool::onRecycleItem(Bullet* item)
 	item->setVisible(false);
 	item->pause();
 	item->getPhysicsBody()->setDynamic(false);
+	item->setLauncher(nullptr);
 }
