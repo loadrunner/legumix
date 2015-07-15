@@ -17,6 +17,7 @@ public:
 	virtual inline int getMaxLife() { return 5; };
 	inline int getLife() { return mLife; };
 	inline void loseLife() { mLife--; /* TODO: check available lives */};
+	inline void hit(const long tag, int power) { loseLife(); };
 	inline void increaseLife() { if (mLife < getMaxLife()) mLife++; };
 protected:
 	int mLife;
