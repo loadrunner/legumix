@@ -479,6 +479,7 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		if (node == mHero)
 		{
 			mHero->hit(Bullet::PHYSICS_TAG, 1);
+			mUILayer->updateLife(mHero->getLife());
 			mBulletPool.recyclePoolItem(bullet);
 		}
 		else
