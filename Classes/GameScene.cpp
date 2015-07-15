@@ -458,96 +458,106 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		mUILayer->updateLife(mHero->getLife());
 		//TODO: implement death
 	}
-	else if (helpers::Custom::isContactBetweenAB(contact, Bullet::PHYSICS_TAG, Object::PHYSICS_TAG))
+	else if (helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG))
 	{
-		Object* object = (Object*) helpers::PhysicsCollisions::getShape(contact, Object::PHYSICS_TAG)->getBody()->getNode();
-		if (!object->canBeShotBy(Bullet::PHYSICS_TAG))
-			return false;
-		
+		cocos2d::Node* node = helpers::PhysicsCollisions::getShapeContactedBy(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
 		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
-		mBulletPool.recyclePoolItem(bullet);
 		
-		bool dead = object->hit(Bullet::PHYSICS_TAG, 1);
-		if (dead)
-			mObjects.eraseObject(object);
-		
-		cocos2d::Vec2 pos = object->getPosition();
-		
-		Obstacle* obstacle = dynamic_cast<Obstacle*>(object);
-		if (obstacle != nullptr)
+		if (node == mHero)
 		{
-			Haystack* haystack = dynamic_cast<Haystack*>(object);
-			if (haystack != nullptr)
-				if (dead)
-					mHaystackPool.recyclePoolItem(haystack);
-			
-			if (dead)
-			{
-				runAction(cocos2d::CallFunc::create([this, pos]()
-						{
-							int n = 2 + rand() % 8;
-							for (int i = 0; i < n; i++)
-							{
-								Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
-								coin->setPosition(pos);
-								coin->runAction(cocos2d::Sequence::create(
-										cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
-										cocos2d::DelayTime::create(4.0f),
-										cocos2d::CallFuncN::create([this](cocos2d::Node* node)
-										{
-											mCoinPool.recyclePoolItem((Coin*) node);
-										}),
-										nullptr));
-							}
-						}));
-				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
-			}
+			mHero->hit(Bullet::PHYSICS_TAG, 1);
+			mBulletPool.recyclePoolItem(bullet);
 		}
-		
-		Collectable* collectable = dynamic_cast<Collectable*>(object);
-		if (collectable != nullptr)
+		else
 		{
-			Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
-			
-			Coin* coin = dynamic_cast<Coin*>(collectable);
-			if (coin != nullptr)
-			{
-				if (dead)
-					mCoinPool.recyclePoolItem(coin);
-				
+			Object* object = dynamic_cast<Object*>(node);
+			if (object == nullptr || !object->canBeShotBy(Bullet::PHYSICS_TAG))
 				return false;
+			
+			mBulletPool.recyclePoolItem(bullet);
+			
+			bool dead = object->hit(Bullet::PHYSICS_TAG, 1);
+			if (dead)
+				mObjects.eraseObject(object);
+			
+			cocos2d::Vec2 pos = object->getPosition();
+			
+			Obstacle* obstacle = dynamic_cast<Obstacle*>(object);
+			if (obstacle != nullptr)
+			{
+				Haystack* haystack = dynamic_cast<Haystack*>(object);
+				if (haystack != nullptr)
+					if (dead)
+						mHaystackPool.recyclePoolItem(haystack);
+				
+				if (dead)
+				{
+					runAction(cocos2d::CallFunc::create([this, pos]()
+							{
+								int n = 2 + rand() % 8;
+								for (int i = 0; i < n; i++)
+								{
+									Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+									coin->setPosition(pos);
+									coin->runAction(cocos2d::Sequence::create(
+											cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+											cocos2d::DelayTime::create(4.0f),
+											cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+											{
+												mCoinPool.recyclePoolItem((Coin*) node);
+											}),
+											nullptr));
+								}
+							}));
+					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+				}
 			}
 			
-			Tomato* tomato = dynamic_cast<Tomato*>(collectable);
-			if (tomato != nullptr)
-				if (dead)
-					mTomatoPool.recyclePoolItem(tomato);
-			
-			Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
-			if (broccoli != nullptr)
-				if (dead)
-					mBroccoliPool.recyclePoolItem(broccoli);
-			
-			if (dead)
+			Collectable* collectable = dynamic_cast<Collectable*>(object);
+			if (collectable != nullptr)
 			{
-				runAction(cocos2d::CallFunc::create([this, pos]()
-						{
-							int n = 2 + rand() % 8;
-							for (int i = 0; i < n; i++)
+				Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
+				
+				Coin* coin = dynamic_cast<Coin*>(collectable);
+				if (coin != nullptr)
+				{
+					if (dead)
+						mCoinPool.recyclePoolItem(coin);
+					
+					return false;
+				}
+				
+				Tomato* tomato = dynamic_cast<Tomato*>(collectable);
+				if (tomato != nullptr)
+					if (dead)
+						mTomatoPool.recyclePoolItem(tomato);
+				
+				Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
+				if (broccoli != nullptr)
+					if (dead)
+						mBroccoliPool.recyclePoolItem(broccoli);
+				
+				if (dead)
+				{
+					runAction(cocos2d::CallFunc::create([this, pos]()
 							{
-								Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
-								coin->setPosition(pos);
-								coin->runAction(cocos2d::Sequence::create(
-										cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
-										cocos2d::DelayTime::create(4.0f),
-										cocos2d::CallFuncN::create([this](cocos2d::Node* node)
-										{
-											mCoinPool.recyclePoolItem((Coin*) node);
-										}),
-										nullptr));
-							}
-						}));
-				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+								int n = 2 + rand() % 8;
+								for (int i = 0; i < n; i++)
+								{
+									Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+									coin->setPosition(pos);
+									coin->runAction(cocos2d::Sequence::create(
+											cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+											cocos2d::DelayTime::create(4.0f),
+											cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+											{
+												mCoinPool.recyclePoolItem((Coin*) node);
+											}),
+											nullptr));
+								}
+							}));
+					CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+				}
 			}
 		}
 	}
