@@ -1,4 +1,6 @@
 #include "Objects.h"
+#include "GameScene.h"
+#include "audio/include/SimpleAudioEngine.h"
 
 MyMenuItem* MyMenuItem::create(cocos2d::Node* sprite, const cocos2d::ccMenuCallback& callback)
 {
@@ -198,4 +200,25 @@ bool Tower::init()
 	setPhysicsBody(body);
 	
 	return true;
+}
+
+void Tower::update(cocos2d::Vec2 heroPos)
+{
+	float dist = getPosition().distanceSquared(heroPos);
+	float ang = atan2(heroPos.y - getPositionY(), heroPos.x - getPositionX()) * 180 / M_PI;
+	
+	if (dist < 2500)
+	{
+		Bullet* bullet = GameScene::mBulletPool.obtainPoolItem();
+		bullet->setRotation(90 - ang);
+		bullet->setPosition(cocos2d::Vec2(getPosition()));
+		bullet->runAction(cocos2d::Sequence::create(
+				cocos2d::MoveTo::create(0.2f, heroPos),
+				cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+				{
+					GameScene::mBulletPool.recyclePoolItem((Bullet*) node);
+				}),
+				nullptr));
+		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("shoot.mp3");
+	}
 }

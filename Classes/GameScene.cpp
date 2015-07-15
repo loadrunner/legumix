@@ -2,6 +2,8 @@
 
 const float MAX_FORCE = 1000.0f;
 
+BulletPool GameScene::mBulletPool;
+
 GameScene::GameScene()
 {
 	cocos2d::log("game scene constructed");
@@ -232,6 +234,12 @@ void GameScene::updateSlow(float dt)
 	{
 		mProgress += dt * 0.6f;
 		mUILayer->updateProgress(mProgress);
+		
+		cocos2d::Vec2 heroPos = cocos2d::Vec2(mHero->getPositionX(), mHero->getPositionY() - mWorldLayer->getScrollContainer()->getPositionY());
+		for (auto it = mTowers.begin(); it != mTowers.end(); it++)
+		{
+			(*it)->update(heroPos);
+		}
 	}
 	
 	if (AppDelegate::pluginGameServices->isSignedIn() != mIsGameServicesAvailable)

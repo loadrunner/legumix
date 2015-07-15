@@ -113,6 +113,7 @@ public:
 	static const unsigned long PHYSICS_TAG = 1 << 28;
 	
 	virtual bool init(const std::string& spriteFrameName) override;
+	virtual void update(cocos2d::Vec2 heroPos) = 0;
 };
 
 class Tower : public Enemy
@@ -126,4 +127,5 @@ public:
 	
 	inline bool canBeShotBy(const long tag) override { return false; };
 	inline bool hit(const long tag, int power) { return false; };
+	void update(cocos2d::Vec2 heroPos) override;
 };

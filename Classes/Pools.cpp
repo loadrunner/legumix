@@ -101,6 +101,7 @@ void BulletPool::onObtainItem(Bullet* item)
 void BulletPool::onRecycleItem(Bullet* item)
 {
 	item->stopAllActions();
+	item->setRotation(0);
 	item->setPosition(-10, -10);
 	item->setScale(1);
 	item->setVisible(false);

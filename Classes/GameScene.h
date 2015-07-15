@@ -19,6 +19,8 @@ public:
 	// Here's a difference. Method 'init' in cocos2d-x returns bool, instead of returning 'id' in cocos2d-iphone
 	virtual bool init() override;
 	
+	static BulletPool mBulletPool;//TODO: find a better way to access this from Tower
+	
 private:
 	GameScene();
 	~GameScene();
@@ -42,7 +44,6 @@ private:
 	cocos2d::Vector<Object*> mObjects;
 	cocos2d::Vector<Tower*> mTowers;
 	
-	BulletPool mBulletPool;
 	ObjectPool mCoinPool;
 	
 	ObjectPool mTomatoPool;
