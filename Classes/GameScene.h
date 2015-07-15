@@ -40,6 +40,7 @@ private:
 	
 	ObjectPool mHaystackPool;
 	cocos2d::Vector<Object*> mObjects;
+	cocos2d::Vector<Tower*> mTowers;
 	
 	BulletPool mBulletPool;
 	ObjectPool mCoinPool;

@@ -165,6 +165,7 @@ void GameScene::update(float dt)
 				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
 				obj->setVisible(true);
 				mObjects.pushBack(obj);
+				mTowers.pushBack((Tower*) obj);
 				break;
 			case 0:
 			default:
@@ -210,6 +211,15 @@ void GameScene::updateSlow(float dt)
 				{
 					cocos2d::log("recycle bro");
 					mBroccoliPool.recyclePoolItem(broccoli);
+					continue;
+				}
+				
+				Tower* tower = dynamic_cast<Tower*>(obj);
+				if (tower != nullptr)
+				{
+					cocos2d::log("recycle tower");
+					mTowerPool.recyclePoolItem(tower);
+					mTowers.eraseObject(tower);
 					continue;
 				}
 			}
