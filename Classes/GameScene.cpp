@@ -115,6 +115,7 @@ bool GameScene::init()
 void GameScene::initPools()
 {
 	mHaystackPool.init(10, Haystack::create(), mWorldLayer->getScrollContainer());
+	mTowerPool.init(10, Tower::create(), mWorldLayer->getScrollContainer());
 	mBulletPool.init(20, mWorldLayer->getScrollContainer());
 	mCoinPool.init(50, Coin::create(), mWorldLayer->getScrollContainer());
 	mTomatoPool.init(50, Tomato::create(), mWorldLayer->getScrollContainer());
@@ -145,7 +146,7 @@ void GameScene::update(float dt)
 		timeFromLastObstacle = 0;
 		
 		Object* obj;
-		switch (rand()%3)
+		switch (rand()%4)
 		{
 			case 1:
 				obj = mTomatoPool.obtainPoolItem();
@@ -155,6 +156,12 @@ void GameScene::update(float dt)
 				break;
 			case 2:
 				obj = mBroccoliPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+				break;
+			case 3:
+				obj = mTowerPool.obtainPoolItem();
 				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
 				obj->setVisible(true);
 				mObjects.pushBack(obj);
@@ -405,7 +412,7 @@ void GameScene::onKeyReleased(cocos2d::EventKeyboard::KeyCode keyCode, cocos2d::
 
 bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 {
-	cocos2d::log("contact %d with %d", contact.getShapeA()->getTag(), contact.getShapeB()->getTag());
+	cocos2d::log("contact %ld with %ld", contact.getShapeA()->getTag(), contact.getShapeB()->getTag());
 	/*
 	if (contact.getShapeA()->getBody()->getTag() == Dot::PHYSICS_TAG
 	 || contact.getShapeB()->getBody()->getTag() == Dot::PHYSICS_TAG)
@@ -441,79 +448,98 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 		mUILayer->updateLife(mHero->getLife());
 		//TODO: implement death
 	}
-	else if (helpers::Custom::isContactBetweenAB(contact, Obstacle::PHYSICS_TAG, Bullet::PHYSICS_TAG))
+	else if (helpers::Custom::isContactBetweenAB(contact, Bullet::PHYSICS_TAG, Object::PHYSICS_TAG))
 	{
-		Obstacle* obstacle = (Obstacle*) helpers::PhysicsCollisions::getShape(contact, Obstacle::PHYSICS_TAG)->getBody()->getNode();
-		cocos2d::Vec2 pos = obstacle->getPosition();
-		mObjects.eraseObject(obstacle);
-		//TODO: check obstacle type
-		mHaystackPool.recyclePoolItem(dynamic_cast<Haystack*>(obstacle));
+		Object* object = (Object*) helpers::PhysicsCollisions::getShape(contact, Object::PHYSICS_TAG)->getBody()->getNode();
+		if (!object->canBeShotBy(Bullet::PHYSICS_TAG))
+			return false;
 		
 		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
 		mBulletPool.recyclePoolItem(bullet);
 		
-		runAction(cocos2d::CallFunc::create([this, pos]()
-				{
-					int n = 2 + rand() % 8;
-					for (int i = 0; i < n; i++)
-					{
-						Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
-						coin->setPosition(pos);
-						coin->runAction(cocos2d::Sequence::create(
-								cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
-								cocos2d::DelayTime::create(4.0f),
-								cocos2d::CallFuncN::create([this](cocos2d::Node* node)
-								{
-									mCoinPool.recyclePoolItem((Coin*) node);
-								}),
-								nullptr));
-					}
-				}));
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
-	}
-	else if (helpers::Custom::isContactBetweenAB(contact, Collectable::PHYSICS_TAG, Bullet::PHYSICS_TAG))
-	{
-		Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
+		bool dead = object->hit(Bullet::PHYSICS_TAG, 1);
+		if (dead)
+			mObjects.eraseObject(object);
 		
-		Coin* coin = dynamic_cast<Coin*>(collectable);
-		if (coin != nullptr)
+		cocos2d::Vec2 pos = object->getPosition();
+		
+		Obstacle* obstacle = dynamic_cast<Obstacle*>(object);
+		if (obstacle != nullptr)
 		{
-			mCoinPool.recyclePoolItem(coin);
-			return false;
+			Haystack* haystack = dynamic_cast<Haystack*>(object);
+			if (haystack != nullptr)
+				if (dead)
+					mHaystackPool.recyclePoolItem(haystack);
+			
+			if (dead)
+			{
+				runAction(cocos2d::CallFunc::create([this, pos]()
+						{
+							int n = 2 + rand() % 8;
+							for (int i = 0; i < n; i++)
+							{
+								Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+								coin->setPosition(pos);
+								coin->runAction(cocos2d::Sequence::create(
+										cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+										cocos2d::DelayTime::create(4.0f),
+										cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+										{
+											mCoinPool.recyclePoolItem((Coin*) node);
+										}),
+										nullptr));
+							}
+						}));
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+			}
 		}
 		
-		cocos2d::Vec2 pos = collectable->getPosition();
-		mObjects.eraseObject(collectable);
-		
-		Tomato* tomato = dynamic_cast<Tomato*>(collectable);
-		if (tomato != nullptr)
-			mTomatoPool.recyclePoolItem(tomato);
-		
-		Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
-		if (broccoli != nullptr)
-			mBroccoliPool.recyclePoolItem(broccoli);
-		
-		Bullet* bullet = (Bullet*) helpers::PhysicsCollisions::getShape(contact, Bullet::PHYSICS_TAG)->getBody()->getNode();
-		mBulletPool.recyclePoolItem(bullet);
-		
-		runAction(cocos2d::CallFunc::create([this, pos]()
-				{
-					int n = 2 + rand() % 8;
-					for (int i = 0; i < n; i++)
-					{
-						Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
-						coin->setPosition(pos);
-						coin->runAction(cocos2d::Sequence::create(
-								cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
-								cocos2d::DelayTime::create(4.0f),
-								cocos2d::CallFuncN::create([this](cocos2d::Node* node)
-								{
-									mCoinPool.recyclePoolItem((Coin*) node);
-								}),
-								nullptr));
-					}
-				}));
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+		Collectable* collectable = dynamic_cast<Collectable*>(object);
+		if (collectable != nullptr)
+		{
+			Collectable* collectable = (Collectable*) helpers::PhysicsCollisions::getShape(contact, Collectable::PHYSICS_TAG)->getBody()->getNode();
+			
+			Coin* coin = dynamic_cast<Coin*>(collectable);
+			if (coin != nullptr)
+			{
+				if (dead)
+					mCoinPool.recyclePoolItem(coin);
+				
+				return false;
+			}
+			
+			Tomato* tomato = dynamic_cast<Tomato*>(collectable);
+			if (tomato != nullptr)
+				if (dead)
+					mTomatoPool.recyclePoolItem(tomato);
+			
+			Broccoli* broccoli = dynamic_cast<Broccoli*>(collectable);
+			if (broccoli != nullptr)
+				if (dead)
+					mBroccoliPool.recyclePoolItem(broccoli);
+			
+			if (dead)
+			{
+				runAction(cocos2d::CallFunc::create([this, pos]()
+						{
+							int n = 2 + rand() % 8;
+							for (int i = 0; i < n; i++)
+							{
+								Coin* coin = (Coin*) mCoinPool.obtainPoolItem();
+								coin->setPosition(pos);
+								coin->runAction(cocos2d::Sequence::create(
+										cocos2d::MoveBy::create(0.15f, cocos2d::Vec2(-15 + rand() % 30, -15 + rand() % 30)),//(i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1), (i % 2 ? 5 : 1) * ((i+1) % 2 ? -1 : 1))),
+										cocos2d::DelayTime::create(4.0f),
+										cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+										{
+											mCoinPool.recyclePoolItem((Coin*) node);
+										}),
+										nullptr));
+							}
+						}));
+				CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("kill.wav");
+			}
+		}
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Coin::PHYSICS_TAG))
 	{

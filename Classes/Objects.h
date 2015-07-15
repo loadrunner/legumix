@@ -36,6 +36,7 @@ public:
 	virtual bool init(const std::string& spriteFrameName);
 	virtual bool init() = 0;
 	virtual bool canBeShotBy(const long tag) = 0;
+	virtual bool hit(const long tag, int power) = 0;
 };
 
 class Obstacle : public Object
@@ -56,12 +57,13 @@ public:
 	inline virtual Haystack* clone() const { return Haystack::create(); }
 	
 	inline bool canBeShotBy(const long tag) override { return tag & Bullet::PHYSICS_TAG; };
+	inline bool hit(const long tag, int power) { return true; };
 };
 
 class Collectable : public Object
 {
 public:
-	static const unsigned long PHYSICS_TAG = 1 << 20;
+	static const unsigned long PHYSICS_TAG = Object::PHYSICS_TAG | 1 << 20;
 	
 	virtual bool init(const std::string& spriteFrameName) override;
 };
@@ -76,6 +78,7 @@ public:
 	inline virtual Coin* clone() const { return Coin::create(); }
 	
 	inline bool canBeShotBy(const long tag) override { return false; };
+	inline bool hit(const long tag, int power) { return false; };
 };
 
 class Tomato : public Collectable
@@ -87,7 +90,8 @@ public:
 	CREATE_FUNC(Tomato);
 	inline virtual Tomato* clone() const { return Tomato::create(); }
 	
-	inline bool canBeShotBy(const long tag) override { return false; };
+	inline bool canBeShotBy(const long tag) override { return true; };
+	inline bool hit(const long tag, int power) { return true; };
 };
 
 class Broccoli : public Collectable
@@ -99,5 +103,27 @@ public:
 	CREATE_FUNC(Broccoli);
 	inline virtual Broccoli* clone() const { return Broccoli::create(); }
 	
+	inline bool canBeShotBy(const long tag) override { return true; };
+	inline bool hit(const long tag, int power) { return true; };
+};
+
+class Enemy : public Object
+{
+public:
+	static const unsigned long PHYSICS_TAG = 1 << 28;
+	
+	virtual bool init(const std::string& spriteFrameName) override;
+};
+
+class Tower : public Enemy
+{
+public:
+	static const unsigned long PHYSICS_TAG = Enemy::PHYSICS_TAG | 1 << 29;
+	
+	virtual bool init() override;
+	CREATE_FUNC(Tower);
+	inline virtual Tower* clone() const { return Tower::create(); }
+	
 	inline bool canBeShotBy(const long tag) override { return false; };
+	inline bool hit(const long tag, int power) { return false; };
 };

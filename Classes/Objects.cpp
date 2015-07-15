@@ -173,3 +173,29 @@ bool Broccoli::init()
 	
 	return true;
 }
+
+bool Enemy::init(const std::string& spriteFrameName)
+{
+	return Object::init(spriteFrameName);
+}
+
+bool Tower::init()
+{
+	if (!Enemy::init("tower"))
+		return false;
+	
+	cocos2d::PhysicsBody* body = cocos2d::PhysicsBody::create();
+	body->setDynamic(false);
+	
+	cocos2d::PhysicsMaterial material(0, 1, 0);
+	
+	cocos2d::PhysicsShape* shape = cocos2d::PhysicsShapeBox::create(
+			cocos2d::Size(getContentSize().width, getContentSize().height * 0.7f), material);
+	shape->setTag(PHYSICS_TAG);
+	shape->setContactTestBitmask(0xFFFFFFFF);
+	body->addShape(shape);
+	
+	setPhysicsBody(body);
+	
+	return true;
+}

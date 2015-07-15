@@ -46,6 +46,7 @@ private:
 	
 	ObjectPool mTomatoPool;
 	ObjectPool mBroccoliPool;
+	ObjectPool mTowerPool;
 	
 	int mScore;
 	float mProgress;
