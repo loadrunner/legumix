@@ -25,7 +25,7 @@ cmake_policy(SET CMP0017 NEW)
 
 cmake_minimum_required(VERSION 2.8)
 
-set(APP_NAME boxxer)
+set(APP_NAME legumix)
 project(${APP_NAME})
 
 set(COCOS2D_ROOT /usr/local/cocos2d-x)

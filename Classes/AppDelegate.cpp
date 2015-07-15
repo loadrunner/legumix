@@ -42,7 +42,7 @@ bool AppDelegate::applicationDidFinishLaunching()
 	auto glview = director->getOpenGLView();
 	if (!glview)
 	{
-		glview = cocos2d::GLViewImpl::createWithRect(std::string("boxxer"), cocos2d::Rect(0, 0, 360, 640), 1.0f);
+		glview = cocos2d::GLViewImpl::createWithRect(std::string("legumix"), cocos2d::Rect(0, 0, 360, 640), 1.0f);
 		director->setOpenGLView(glview);
 	}
 	
