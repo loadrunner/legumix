@@ -459,8 +459,6 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 	{
 		cocos2d::Vec2 v = mHero->getPhysicsBody()->getVelocity();
 		mHero->getPhysicsBody()->setVelocity(cocos2d::Vec2(v.x * -0.5f, 0));
-		mHero->loseLife();
-		mUILayer->updateLife(mHero->getLife());
 	}
 	else if (helpers::Custom::isContactBetweenAB(contact, Hero::PHYSICS_TAG_BODY, Obstacle::PHYSICS_TAG))
 	{
