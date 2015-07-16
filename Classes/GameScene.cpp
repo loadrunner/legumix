@@ -130,6 +130,7 @@ void GameScene::setParent(Node* child)
 	
 }
 
+float timeFromLastCollectable = 0;
 float timeFromLastObstacle = 0;
 
 void GameScene::update(float dt)
@@ -141,40 +142,57 @@ void GameScene::update(float dt)
 	if (mCurrentAcceleration.x != 0)
 		mHero->getPhysicsBody()->applyImpulse(cocos2d::Vec2(mCurrentAcceleration.x, 0));
 	
+	timeFromLastCollectable += dt;
 	timeFromLastObstacle += dt;
 	
-	if (timeFromLastObstacle >= 0.6f)
+	if (timeFromLastCollectable >= 1.0f)
+	{
+		timeFromLastCollectable = 0;
+		
+		Object* obj;
+		switch (rand()%2)
+		{
+			case 0:
+				obj = mTomatoPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+				break;
+			case 1:
+				obj = mBroccoliPool.obtainPoolItem();
+				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
+				obj->setVisible(true);
+				mObjects.pushBack(obj);
+				break;
+			default:
+				;
+		}
+	}
+	
+	if (timeFromLastObstacle >= 1.0f)
 	{
 		timeFromLastObstacle = 0;
 		
 		Object* obj;
 		switch (rand()%4)
 		{
-			case 1:
-				obj = mTomatoPool.obtainPoolItem();
-				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
-				obj->setVisible(true);
-				mObjects.pushBack(obj);
-				break;
-			case 2:
-				obj = mBroccoliPool.obtainPoolItem();
-				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
-				obj->setVisible(true);
-				mObjects.pushBack(obj);
-				break;
-			case 3:
+			case 0:
 				obj = mTowerPool.obtainPoolItem();
 				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
 				obj->setVisible(true);
 				mObjects.pushBack(obj);
 				mTowers.pushBack((Tower*) obj);
 				break;
-			case 0:
-			default:
+			case 1:
+			case 2:
+			case 3:
 				obj = mHaystackPool.obtainPoolItem();
 				obj->setPosition(cocos2d::Vec2((mScreenSize.width - mWorldLayer->getContentSize().width) / 2 + rand() % (int) mWorldLayer->getContentSize().width, -mWorldLayer->getScrollContainer()->getPositionY() + mScreenSize.height));
 				obj->setVisible(true);
 				mObjects.pushBack(obj);
+				break;
+			default:
+				;
 		}
 	}
 	
@@ -238,7 +256,7 @@ void GameScene::updateSlow(float dt)
 		cocos2d::Vec2 heroPos = cocos2d::Vec2(mHero->getPositionX(), mHero->getPositionY() - mWorldLayer->getScrollContainer()->getPositionY());
 		for (auto it = mTowers.begin(); it != mTowers.end(); it++)
 		{
-			(*it)->update(heroPos);
+			(*it)->update(dt, heroPos);
 		}
 	}
 	

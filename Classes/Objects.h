@@ -123,7 +123,7 @@ public:
 	static const unsigned long PHYSICS_TAG = 1 << 28;
 	
 	virtual bool init(const std::string& spriteFrameName) override;
-	virtual void update(cocos2d::Vec2 heroPos) = 0;
+	virtual void update(float dt, cocos2d::Vec2 heroPos) = 0;
 protected:
 	int mLife;
 };
@@ -132,14 +132,17 @@ class Tower : public Enemy
 {
 public:
 	static const unsigned long PHYSICS_TAG = Enemy::PHYSICS_TAG | 1 << 29;
-	static const int MAX_LIVES = 3;
+	static const int MAX_LIVES = 2;
+	static const float HIT_RATE;
 	
 	virtual bool init() override;
 	CREATE_FUNC(Tower);
 	inline virtual Tower* clone() const { return Tower::create(); }
-	inline void reset() { mLife = MAX_LIVES; };
+	void reset() override;
 	
 	inline bool canBeShotBy(const long tag) override { return true; };
 	inline bool hit(const long tag, int power) { return --mLife <= 0 ? true : false; };
-	void update(cocos2d::Vec2 heroPos) override;
+	void update(float dt, cocos2d::Vec2 heroPos) override;
+private:
+	float mTimeFromLastHit;
 };

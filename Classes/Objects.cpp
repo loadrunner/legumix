@@ -183,6 +183,8 @@ bool Enemy::init(const std::string& spriteFrameName)
 	return Object::init(spriteFrameName);
 }
 
+const float Tower::HIT_RATE = 1.0f;
+
 bool Tower::init()
 {
 	if (!Enemy::init("tower"))
@@ -201,29 +203,42 @@ bool Tower::init()
 	
 	setPhysicsBody(body);
 	
-	mLife = MAX_LIVES;
+	reset();
 	
 	return true;
 }
 
-void Tower::update(cocos2d::Vec2 heroPos)
+void Tower::reset()
 {
-	float dist = getPosition().distanceSquared(heroPos);
-	float ang = atan2(heroPos.y - getPositionY(), heroPos.x - getPositionX()) * 180 / M_PI;
+	mLife = MAX_LIVES;
+	mTimeFromLastHit = 0;
+}
+
+void Tower::update(float dt, cocos2d::Vec2 heroPos)
+{
+	mTimeFromLastHit += dt;
 	
-	if (dist < 2500)
+	if (mTimeFromLastHit >= HIT_RATE)
 	{
-		Bullet* bullet = GameScene::mBulletPool.obtainPoolItem();
-		bullet->setLauncher(this);
-		bullet->setRotation(90 - ang);
-		bullet->setPosition(cocos2d::Vec2(getPosition()));
-		bullet->runAction(cocos2d::Sequence::create(
-				cocos2d::MoveTo::create(0.2f, heroPos),
-				cocos2d::CallFuncN::create([this](cocos2d::Node* node)
-				{
-					GameScene::mBulletPool.recyclePoolItem((Bullet*) node);
-				}),
-				nullptr));
-		CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("shoot.mp3");
+		mTimeFromLastHit = 0;
+		
+		float dist = getPosition().distanceSquared(heroPos);
+		float ang = atan2(heroPos.y - getPositionY(), heroPos.x - getPositionX()) * 180 / M_PI;
+		
+		if (dist < 2500)
+		{
+			Bullet* bullet = GameScene::mBulletPool.obtainPoolItem();
+			bullet->setLauncher(this);
+			bullet->setRotation(90 - ang);
+			bullet->setPosition(cocos2d::Vec2(getPosition()));
+			bullet->runAction(cocos2d::Sequence::create(
+					cocos2d::MoveTo::create(0.2f, heroPos),
+					cocos2d::CallFuncN::create([this](cocos2d::Node* node)
+					{
+						GameScene::mBulletPool.recyclePoolItem((Bullet*) node);
+					}),
+					nullptr));
+			CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("shoot.mp3");
+		}
 	}
 }
