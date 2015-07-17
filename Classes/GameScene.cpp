@@ -596,7 +596,10 @@ bool GameScene::onContactBegin(const cocos2d::PhysicsContact& contact)
 				Tower* tower = dynamic_cast<Tower*>(enemy);
 				if (tower != nullptr)
 					if (dead)
+					{
 						mTowerPool.recyclePoolItem(tower);
+						mTowers.eraseObject(tower);
+					}
 				
 				if (dead)
 				{
